@@ -25,7 +25,7 @@ async function checkAvisos() {
   const now = new Date(), ds = iso(now), day = pla.days?.[ds]; if (!day) return;
   const vist = (await get("vist")) || {};
   for (const kind of ["mati", "vespre"]) {
-    const [h, m] = String(pla[kind] || "").split(":").map(Number), at = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h || 0, m || 0), key = `${ds}|${kind}`;
+    const [h, m] = String(day.t?.[kind] || "").split(":").map(Number), at = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h || 0, m || 0), key = `${ds}|${kind}`;
     if (vist[key] || now < at || !day[kind] || (kind === "mati" && now - at > 6 * 3600e3)) continue;
     vist[key] = 1; await set("vist", vist);
     const txt = kind === "vespre" ? { title: "Abans d'anar a dormir: revisa les tasques d'avui", body: day.vespre.body } : day.mati;

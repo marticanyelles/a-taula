@@ -2056,7 +2056,10 @@ async function setupWeb() {
   queueAvisos();
 }
 // Avisos de cada dispositiu: un resum del matí amb les tasques del dia i un recordatori al vespre del que encara és pendent
-const avCfg = () => Object.assign({ on: false, mati: "08:00", vespre: "20:30" }, SET.avisos || {});
+// Hores per a entre setmana (dl–dv: les tasques quan s'acaba de treballar) i per al cap de setmana (ds–dg)
+const avCfg = () => { const a = SET.avisos || {};
+  return { on: !!a.on, lab: { mati: "17:30", vespre: a.vespre || "21:00", ...(a.lab || {}) }, cap: { mati: "09:00", vespre: a.vespre || "20:30", ...(a.cap || {}) } }; };
+const avTimes = (d, c = avCfg()) => dayIdx(d) >= 5 ? c.cap : c.lab;
 async function notify(title, body, tag, extra = {}) {
   if (!("Notification" in window) || Notification.permission !== "granted") return false;
   const opt = { body, tag, icon: "icon-192.png", badge: "icon-192.png", lang: "ca", renotify: true, data: { url: "./" }, ...extra };
@@ -2070,7 +2073,7 @@ function avisText(d, kind) {
   const ts = tasksOn(d).filter(x => !isDone(d, "Tasca", taskKey(x)));
   if (!ts.length) return null;
   const list = ts.slice(0, 5).map(x => `• ${x.text}`).join("\n") + (ts.length > 5 ? `\n… i ${ts.length - 5} més` : "");
-  return kind === "mati" ? { title: `A taula! · ${ts.length} ${ts.length === 1 ? "tasca" : "tasques"} avui`, body: list } : { title: "Abans d'anar a dormir: encara pendent", body: list };
+  return kind === "mati" ? { title: `A taula! · ${ts.length} ${ts.length === 1 ? "tasca" : "tasques"} per avui`, body: list } : { title: "Abans d'anar a dormir: encara pendent", body: list };
 }
 let avTimers = [], avQ = null;
 const queueAvisos = () => { if (!isWeb) return; clearTimeout(avQ); avQ = setTimeout(scheduleAvisos, 1500); };
@@ -2080,16 +2083,16 @@ async function scheduleAvisos() {
   try { navigator.setAppBadge && (DB ? navigator.setAppBadge(tasksOn(t).filter(x => !isDone(t, "Tasca", taskKey(x))).length) : navigator.clearAppBadge()); } catch (e) { }
   if (!DB) return;
   // pla per al service worker (per si l'app és tancada): els propers 7 dies
-  const days = {}; for (let i = 0; i < 7; i++) { const d = addDays(t, i); const m = avisText(d, "mati"), v = avisText(d, "vespre"); if (m) days[iso(d)] = { mati: m, vespre: v }; }
-  await avDb.set("pla", { on: c.on, mati: c.mati, vespre: c.vespre, days, at: nowIso() }).catch(() => { });
+  const days = {}; for (let i = 0; i < 7; i++) { const d = addDays(t, i); const m = avisText(d, "mati"), v = avisText(d, "vespre"); if (m) days[iso(d)] = { mati: m, vespre: v, t: avTimes(d, c) }; }
+  await avDb.set("pla", { on: c.on, days, at: nowIso() }).catch(() => { });
   if (!c.on || window.Notification?.permission !== "granted") return;
   const vist = (await avDb.get("vist").catch(() => null)) || {};
   for (const kind of ["mati", "vespre"]) {
-    const [h, mi] = String(c[kind]).split(":").map(Number), at = new Date(t.getFullYear(), t.getMonth(), t.getDate(), h || 0, mi || 0), key = `${iso(t)}|${kind}`;
+    const [h, mi] = String(avTimes(t, c)[kind]).split(":").map(Number), at = new Date(t.getFullYear(), t.getMonth(), t.getDate(), h || 0, mi || 0), key = `${iso(t)}|${kind}`;
     const fire = async () => { const v = (await avDb.get("vist").catch(() => null)) || {}; if (v[key]) return; const txt = avisText(today(), kind); v[key] = 1; await avDb.set("vist", v); if (txt) notify(txt.title, txt.body, "avis-" + kind); };
     if (vist[key]) continue;
     const ms = at - Date.now();
-    if (ms <= 0) { if (kind === "vespre" || Date.now() - at < 6 * 3600e3) fire(); } // l'avís del matí només fins 6 h més tard
+    if (ms <= 0) { if (kind === "vespre" || Date.now() - at < 6 * 3600e3) fire(); } // l'avís de les tasques només fins 6 h més tard
     else if (ms < 24 * 3600e3) avTimers.push(setTimeout(fire, ms));
   }
 }
@@ -2792,9 +2795,9 @@ const VIEWS = {
       ${fsaSupported() ? `<details id="bakD"><summary>Còpies de seguretat</summary><p class="sub">Abans de cada desat, l'app guarda en aquest navegador l'Excel tal com era (les 5 últimes vegades). Pots baixar-ne una i obrir-la o fer-la servir per recuperar dades.</p><div id="bakL" class="sub">…</div></details>` : `<div class="row" style="margin-top:8px"><button class="btn" id="expB">Exportar dades</button><label class="btn">Importar dades<input type="file" id="impIn" accept=".json" hidden></label></div>`}</div>
       <h2>Avisos</h2><div class="card">${!isWeb ? `<p class="sub" style="margin:0">Els avisos només funcionen obrint l'app des de la web: <b>marticanyelles.github.io/a-taula</b>.</p>` : `
         <label class="toggle"><input type="checkbox" id="avOn" ${avCfg().on && window.Notification?.permission === "granted" ? "checked" : ""}><span>Avisos en aquest dispositiu</span></label>
-        <div class="grid2" style="margin-top:8px"><div><label class="f" for="avM">Tasques del dia (matí)</label><input type="time" id="avM" value="${esc(avCfg().mati)}"></div><div><label class="f" for="avV">Recordatori del vespre</label><input type="time" id="avV" value="${esc(avCfg().vespre)}"></div></div>
+        ${[["lab", "Entre setmana (dl–dv)"], ["cap", "Cap de setmana (ds–dg)"]].map(([g, l]) => `<p class="f" style="margin:12px 0 0"><b>${l}</b></p><div class="grid2"><div><label class="f" for="av-${g}-mati">Tasques</label><input type="time" id="av-${g}-mati" data-av="${g}|mati" value="${esc(avCfg()[g].mati)}"></div><div><label class="f" for="av-${g}-vespre">Recordatori</label><input type="time" id="av-${g}-vespre" data-av="${g}|vespre" value="${esc(avCfg()[g].vespre)}"></div></div>`).join("")}
         <div class="row wrap" style="gap:8px;margin-top:10px"><button class="btn small" id="avTest">Provar un avís</button></div>
-        <p class="sub">Al matí arriba la llista de tasques del dia (descongelar, marinar, cuinar…); al vespre, el que encara no has marcat. Els temporitzadors també avisen si el mòbil està bloquejat. Amb l'app oberta o en segon pla, a l'hora exacta. Amb l'app tancada, cal tenir-la instal·lada, i Chrome els mostra quan pot (de vegades amb una mica de retard).</p>`}</div>
+        <p class="sub">A l'hora de «Tasques» arriba la llista del que toca fer (descongelar, marinar, cuinar…); a la del vespre, el que encara no has marcat. Els temporitzadors també avisen si el mòbil està bloquejat. Amb l'app oberta o en segon pla, a l'hora exacta. Amb l'app tancada, cal tenir-la instal·lada, i Chrome els mostra quan pot (de vegades amb una mica de retard).</p>`}</div>
       <h2>Aquest dispositiu</h2><div class="card"><label class="f" for="keepIn">Enllaç a la llista de la compra de Keep</label><input id="keepIn" type="url" placeholder="https://keep.google.com/…" value="${esc(SET.keepUrl || DB.config.keep_url || "")}">
         <p class="sub">L'app guarda les dades d'ús en aquest navegador (a més de l'Excel). «Oblidar» les esborra d'aquí i desconnecta l'Excel; l'Excel no es toca.</p><button class="btn danger" id="forgetB">Oblidar aquest dispositiu</button></div>
       <h2>Cicle i persones</h2><div class="card"><dl class="kv"><dt>Inici</dt><dd>${fmtDate(start)}</dd><dt>Avui</dt><dd>dia ${cycleDay(today())}, setmana ${cycleWeek(today())}</dd><dt>Per defecte</dt><dd>opcions ${season(today()) === "Estiu" ? "d'estiu" : "d'hivern"} (automàtic segons la data)</dd></dl>
@@ -2976,7 +2979,8 @@ const BIND = {
     const on = (id, f) => { const e = $(id, root); if (e) e.onclick = f; };
     on("#connectB", connectExcel); on("#reconB", reconnect); on("#saveB", () => syncNow()); on("#expB", exportData); on("#forgetB", forgetDevice);
     const ao = $("#avOn", root); if (ao) ao.onchange = async () => { const ok = await enableAvisos(ao.checked); if (!ok) ao.checked = false; else toast(ao.checked ? "Avisos activats" : "Avisos desactivats"); };
-    for (const [id, k] of [["#avM", "mati"], ["#avV", "vespre"]]) { const e = $(id, root); if (e) e.onchange = async () => { SET.avisos = { ...avCfg(), [k]: e.value }; saveSET(); const v = (await avDb.get("vist").catch(() => null)) || {}; delete v[`${iso(today())}|${k}`]; await avDb.set("vist", v); queueAvisos(); toast("Hora desada"); }; }
+    $$("[data-av]", root).forEach(e => e.onchange = async () => { const [g, k] = e.dataset.av.split("|"), c = avCfg(); if (!e.value) return; c[g][k] = e.value; SET.avisos = c; saveSET();
+      const v = (await avDb.get("vist").catch(() => null)) || {}; delete v[`${iso(today())}|${k}`]; await avDb.set("vist", v); queueAvisos(); toast("Hora desada"); });
     on("#avTest", async () => { if (window.Notification?.permission !== "granted" && !(await enableAvisos(true))) return; const txt = avisText(today(), "mati") || { title: "A taula!", body: "Avui no hi ha tasques pendents." }; if (!(await notify(txt.title, txt.body, "prova"))) toast("No s'ha pogut mostrar l'avís"); });
     on("#reloadB", async () => { try { await loadFromHandle(); if (Object.keys(ST.pending).length) scheduleSync(300); toast("Excel tornat a llegir"); } catch (e) { alertBox("No s'ha pogut llegir l'Excel", e.message); } });
     const ki = $("#keepIn", root); if (ki) ki.onchange = () => { SET.keepUrl = ki.value.trim(); saveSET(); toast(/^https:\/\/keep\.google\.com\//.test(SET.keepUrl) || !SET.keepUrl ? "Enllaç desat" : "L'enllaç ha de començar per https://keep.google.com/"); };
