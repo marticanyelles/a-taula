@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2f6f5a">
 <!-- L'app no es connecta a cap servidor: si algun text de l'Excel intentés carregar o enviar res a fora, el navegador ho bloqueja -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; media-src data: blob:; font-src data:; connect-src 'none'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; worker-src 'self'; style-src 'unsafe-inline'; img-src 'self' data: blob:; media-src data: blob:; font-src data:; connect-src 'none'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>A taula!</title>
 <!-- Publicada a la web (GitHub Pages) es pot instal·lar com una app; obrint l'HTML com a fitxer, aquestes línies no fan res -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -249,7 +249,7 @@ main.view.wide{max-width:1180px}
 .stepper{display:flex;align-items:center;gap:8px}
 .stepper button{width:40px;height:40px;border-radius:12px;border:0;background:var(--surface2);font-size:1.2em;font-weight:700}
 .stepper b{min-width:2.5ch;text-align:center;font-size:1.1em}
-input[type=search],input[type=text],input[type=url],input[type=date],input[type=number],select,textarea{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 12px;min-height:46px}
+input[type=search],input[type=text],input[type=url],input[type=time],input[type=date],input[type=number],select,textarea{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 12px;min-height:46px}
 label.f{display:block;font-size:.85em;font-weight:650;color:var(--muted);margin:10px 0 4px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + 18px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:.9em;opacity:0;transition:opacity .2s,transform .2s;z-index:60;pointer-events:none;max-width:90vw}
@@ -2013,6 +2013,8 @@ function renderTimers() {
   const now = Date.now();
   // mentre n'hi hagi algun d'acabat, torna a sonar cada 2 s fins que es tanca (✓)
   if (TIMERS.some(t => t.end <= now) && now - lastRing > 1900) { lastRing = now; beep(); }
+  // si l'app no és a la vista (mòbil bloquejat, una altra app), també un avís del sistema, un sol cop per temporitzador
+  for (const t of TIMERS) if (t.end <= now && !t.notified && document.hidden) { t.notified = true; saveTimers(); notify(`⏰ ${t.label}`, "Temps!", "timer-" + t.id, { requireInteraction: true, vibrate: [150, 70, 150, 70, 150] }); }
   bar.innerHTML = TIMERS.map(t => { const left = (t.end - now) / 1000, over = left <= 0;
     return `<div class="tchip ${over ? "over" : ""}"><span class="tc-l">${esc(t.label)}</span><b>${over ? "Temps!" : fmtClock(left)}</b>
       ${over ? "" : `<button data-tplus="${t.id}" aria-label="Un minut més">+1</button>`}<button data-tdel="${t.id}" aria-label="${over ? "Tancar" : "Aturar"} el temporitzador">${over ? "✓" : "✕"}</button></div>`; }).join("");
@@ -2035,6 +2037,72 @@ function openTimerForm() {
     SET.timerNames = [n, ...names.filter(x => x !== n)].slice(0, 8); saveSET(); startTimer(Math.round(m * 60), n); closeSheet(true); };
   $$("#sheetBody [data-tmq]").forEach(b => b.onclick = () => { $("#tmM").value = b.dataset.tmq; go(); });
   $("#tmGo").onclick = go; $("#tmM").onkeydown = e => { if (e.key === "Enter") go(); };
+}
+
+/* ================= App a la web: sense connexió, avisos, dreceres ================= */
+// Només quan s'obre des de la web (https o localhost). Obrint l'HTML com a fitxer, res d'això s'activa.
+const isWeb = location.protocol === "https:" || /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+let swReg = null;
+async function setupWeb() {
+  if (!isWeb) return;
+  if ("serviceWorker" in navigator) { try { swReg = await navigator.serviceWorker.register("sw.js"); } catch (e) { console.warn("sw", e); } }
+  try { await navigator.storage?.persist?.(); } catch (e) { } // que el navegador no esborri les dades locals si va just d'espai
+  // dreceres de la icona de l'app: ?v=shop (Compra), ?v=inv (Rebost), ?timer=1 (temporitzador nou)
+  const q = new URLSearchParams(location.search);
+  if (q.get("v") && DB && VIEWS[q.get("v")]) go(q.get("v"));
+  if (q.get("timer") && DB) openTimerForm();
+  if ([...q.keys()].length) history.replaceState(null, "", location.pathname);
+  await registerPeriodic();
+  queueAvisos();
+}
+// Avisos de cada dispositiu: un resum del matí amb les tasques del dia i un recordatori al vespre del que encara és pendent
+const avCfg = () => Object.assign({ on: false, mati: "08:00", vespre: "20:30" }, SET.avisos || {});
+async function notify(title, body, tag, extra = {}) {
+  if (!("Notification" in window) || Notification.permission !== "granted") return false;
+  const opt = { body, tag, icon: "icon-192.png", badge: "icon-192.png", lang: "ca", renotify: true, data: { url: "./" }, ...extra };
+  try { if (swReg) await swReg.showNotification(title, opt); else new Notification(title, opt); return true; } catch (e) { return false; }
+}
+// IndexedDB que comparteixen l'app i el service worker: el pla d'avisos dels propers dies i quins ja s'han mostrat
+const avDb = { open() { return new Promise((res, rej) => { const r = indexedDB.open("a-taula-avisos", 1); r.onupgradeneeded = () => r.result.createObjectStore("k"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); },
+  async get(k) { const db = await this.open(); return new Promise(res => { const t = db.transaction("k").objectStore("k").get(k); t.onsuccess = () => { res(t.result); db.close(); }; t.onerror = () => { res(null); db.close(); }; }); },
+  async set(k, v) { const db = await this.open(); return new Promise(res => { const t = db.transaction("k", "readwrite").objectStore("k").put(v, k); t.onsuccess = () => { res(true); db.close(); }; t.onerror = () => { res(false); db.close(); }; }); } };
+function avisText(d, kind) {
+  const ts = tasksOn(d).filter(x => !isDone(d, "Tasca", taskKey(x)));
+  if (!ts.length) return null;
+  const list = ts.slice(0, 5).map(x => `• ${x.text}`).join("\n") + (ts.length > 5 ? `\n… i ${ts.length - 5} més` : "");
+  return kind === "mati" ? { title: `A taula! · ${ts.length} ${ts.length === 1 ? "tasca" : "tasques"} avui`, body: list } : { title: "Abans d'anar a dormir: encara pendent", body: list };
+}
+let avTimers = [], avQ = null;
+const queueAvisos = () => { if (!isWeb) return; clearTimeout(avQ); avQ = setTimeout(scheduleAvisos, 1500); };
+async function scheduleAvisos() {
+  avTimers.forEach(clearTimeout); avTimers = [];
+  const c = avCfg(), t = today();
+  try { navigator.setAppBadge && (DB ? navigator.setAppBadge(tasksOn(t).filter(x => !isDone(t, "Tasca", taskKey(x))).length) : navigator.clearAppBadge()); } catch (e) { }
+  if (!DB) return;
+  // pla per al service worker (per si l'app és tancada): els propers 7 dies
+  const days = {}; for (let i = 0; i < 7; i++) { const d = addDays(t, i); const m = avisText(d, "mati"), v = avisText(d, "vespre"); if (m) days[iso(d)] = { mati: m, vespre: v }; }
+  await avDb.set("pla", { on: c.on, mati: c.mati, vespre: c.vespre, days, at: nowIso() }).catch(() => { });
+  if (!c.on || window.Notification?.permission !== "granted") return;
+  const vist = (await avDb.get("vist").catch(() => null)) || {};
+  for (const kind of ["mati", "vespre"]) {
+    const [h, mi] = String(c[kind]).split(":").map(Number), at = new Date(t.getFullYear(), t.getMonth(), t.getDate(), h || 0, mi || 0), key = `${iso(t)}|${kind}`;
+    const fire = async () => { const v = (await avDb.get("vist").catch(() => null)) || {}; if (v[key]) return; const txt = avisText(today(), kind); v[key] = 1; await avDb.set("vist", v); if (txt) notify(txt.title, txt.body, "avis-" + kind); };
+    if (vist[key]) continue;
+    const ms = at - Date.now();
+    if (ms <= 0) { if (kind === "vespre" || Date.now() - at < 6 * 3600e3) fire(); } // l'avís del matí només fins 6 h més tard
+    else if (ms < 24 * 3600e3) avTimers.push(setTimeout(fire, ms));
+  }
+}
+// Amb l'app instal·lada, Chrome pot despertar el service worker de tant en tant per mostrar l'avís encara que l'app sigui tancada
+async function registerPeriodic() {
+  try { if (!swReg?.periodicSync) return "no";
+    const st = await navigator.permissions.query({ name: "periodic-background-sync" }); if (st.state !== "granted") return "no";
+    await swReg.periodicSync.register("avisos", { minInterval: 3 * 3600e3 }); return "sí"; } catch (e) { return "no"; }
+}
+async function enableAvisos(on) {
+  if (on) { if (!("Notification" in window)) { toast("Aquest navegador no permet avisos"); return false; }
+    const p = await Notification.requestPermission(); if (p !== "granted") { toast("Cal donar permís d'avisos a Chrome per a aquesta web"); return false; } }
+  SET.avisos = { ...avCfg(), on }; saveSET(); await registerPeriodic(); queueAvisos(); return true;
 }
 
 /* ================= Nutrició de la setmana per persona ================= */
@@ -2450,7 +2518,7 @@ function render() {
   const oc = $("#oldConn"); if (oc) oc.onclick = connectExcel;
   bindCommon(main); if (DB) (BIND[v] || (() => { }))(main);
   if (fsel) $(fsel, main)?.focus({ preventScroll: true });
-  renderStatus(); renderCooking();
+  renderStatus(); renderCooking(); queueAvisos();
 }
 function bindCommon(root) {
   $$("[data-recipe]", root).forEach(b => b.onclick = e => { e.preventDefault(); e.stopPropagation(); if (b.dataset.recipe) openRecipe(b.dataset.recipe, num(b.dataset.racOpen) || undefined); });
@@ -2722,6 +2790,11 @@ const VIEWS = {
     let h = `<h2>Excel</h2><div class="card">${conn}<details style="margin-top:10px"><summary>Carregar un Excel només per llegir</summary><div class="drop" id="drop"><label class="btn">Tria el fitxer<input type="file" id="fileIn" accept=".xlsx" hidden></label></div></details>
       ${DB.warnings?.length ? `<details><summary>Avisos de l'Excel (${DB.warnings.length})</summary>${DB.warnings.map(w => `<div class="sub">• ${esc(w)}</div>`).join("")}</details>` : ""}
       ${fsaSupported() ? `<details id="bakD"><summary>Còpies de seguretat</summary><p class="sub">Abans de cada desat, l'app guarda en aquest navegador l'Excel tal com era (les 5 últimes vegades). Pots baixar-ne una i obrir-la o fer-la servir per recuperar dades.</p><div id="bakL" class="sub">…</div></details>` : `<div class="row" style="margin-top:8px"><button class="btn" id="expB">Exportar dades</button><label class="btn">Importar dades<input type="file" id="impIn" accept=".json" hidden></label></div>`}</div>
+      <h2>Avisos</h2><div class="card">${!isWeb ? `<p class="sub" style="margin:0">Els avisos només funcionen obrint l'app des de la web: <b>marticanyelles.github.io/a-taula</b>.</p>` : `
+        <label class="toggle"><input type="checkbox" id="avOn" ${avCfg().on && window.Notification?.permission === "granted" ? "checked" : ""}><span>Avisos en aquest dispositiu</span></label>
+        <div class="grid2" style="margin-top:8px"><div><label class="f" for="avM">Tasques del dia (matí)</label><input type="time" id="avM" value="${esc(avCfg().mati)}"></div><div><label class="f" for="avV">Recordatori del vespre</label><input type="time" id="avV" value="${esc(avCfg().vespre)}"></div></div>
+        <div class="row wrap" style="gap:8px;margin-top:10px"><button class="btn small" id="avTest">Provar un avís</button></div>
+        <p class="sub">Al matí arriba la llista de tasques del dia (descongelar, marinar, cuinar…); al vespre, el que encara no has marcat. Els temporitzadors també avisen si el mòbil està bloquejat. Amb l'app oberta o en segon pla, a l'hora exacta. Amb l'app tancada, cal tenir-la instal·lada, i Chrome els mostra quan pot (de vegades amb una mica de retard).</p>`}</div>
       <h2>Aquest dispositiu</h2><div class="card"><label class="f" for="keepIn">Enllaç a la llista de la compra de Keep</label><input id="keepIn" type="url" placeholder="https://keep.google.com/…" value="${esc(SET.keepUrl || DB.config.keep_url || "")}">
         <p class="sub">L'app guarda les dades d'ús en aquest navegador (a més de l'Excel). «Oblidar» les esborra d'aquí i desconnecta l'Excel; l'Excel no es toca.</p><button class="btn danger" id="forgetB">Oblidar aquest dispositiu</button></div>
       <h2>Cicle i persones</h2><div class="card"><dl class="kv"><dt>Inici</dt><dd>${fmtDate(start)}</dd><dt>Avui</dt><dd>dia ${cycleDay(today())}, setmana ${cycleWeek(today())}</dd><dt>Per defecte</dt><dd>opcions ${season(today()) === "Estiu" ? "d'estiu" : "d'hivern"} (automàtic segons la data)</dd></dl>
@@ -2902,6 +2975,9 @@ const BIND = {
   settings(root) {
     const on = (id, f) => { const e = $(id, root); if (e) e.onclick = f; };
     on("#connectB", connectExcel); on("#reconB", reconnect); on("#saveB", () => syncNow()); on("#expB", exportData); on("#forgetB", forgetDevice);
+    const ao = $("#avOn", root); if (ao) ao.onchange = async () => { const ok = await enableAvisos(ao.checked); if (!ok) ao.checked = false; else toast(ao.checked ? "Avisos activats" : "Avisos desactivats"); };
+    for (const [id, k] of [["#avM", "mati"], ["#avV", "vespre"]]) { const e = $(id, root); if (e) e.onchange = async () => { SET.avisos = { ...avCfg(), [k]: e.value }; saveSET(); const v = (await avDb.get("vist").catch(() => null)) || {}; delete v[`${iso(today())}|${k}`]; await avDb.set("vist", v); queueAvisos(); toast("Hora desada"); }; }
+    on("#avTest", async () => { if (window.Notification?.permission !== "granted" && !(await enableAvisos(true))) return; const txt = avisText(today(), "mati") || { title: "A taula!", body: "Avui no hi ha tasques pendents." }; if (!(await notify(txt.title, txt.body, "prova"))) toast("No s'ha pogut mostrar l'avís"); });
     on("#reloadB", async () => { try { await loadFromHandle(); if (Object.keys(ST.pending).length) scheduleSync(300); toast("Excel tornat a llegir"); } catch (e) { alertBox("No s'ha pogut llegir l'Excel", e.message); } });
     const ki = $("#keepIn", root); if (ki) ki.onchange = () => { SET.keepUrl = ki.value.trim(); saveSET(); toast(/^https:\/\/keep\.google\.com\//.test(SET.keepUrl) || !SET.keepUrl ? "Enllaç desat" : "L'enllaç ha de començar per https://keep.google.com/"); };
     const bd = $("#bakD", root); if (bd) bd.ontoggle = async () => { if (!bd.open) return; const L = await backupList(), el = $("#bakL", root);
@@ -3099,7 +3175,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.addEventListener("change", e => { if (e.target.id === "fileIn" && e.target.files[0]) loadReadOnly(e.target.files[0]); });
   document.addEventListener("dragover", e => { e.preventDefault(); $("#drop")?.classList.add("over"); });
   document.addEventListener("drop", e => { e.preventDefault(); $("#drop")?.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f && $("#drop")) loadReadOnly(f); });
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) { checkExternal(); keepAwake(); checkDay(); } else if (Object.keys(ST.pending).length) syncNow(); });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) { checkExternal(); keepAwake(); checkDay(); queueAvisos(); } else if (Object.keys(ST.pending).length) syncNow(); });
   window.addEventListener("pagehide", () => { saveST(); if (Object.keys(ST.pending).length) syncNow(); });
   window.addEventListener("pageshow", e => { if (e.persisted) { checkExternal(); checkDay(); } });
   window.addEventListener("focus", checkExternal);
@@ -3107,6 +3183,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener("storage", e => { if (e.key !== K_STORE || !e.newValue || FS.saving) return; const o = JSON.parse(e.newValue); if (!o) return; ST = o; for (const k of ["inv", "plan", "reg", "compra", "pending"]) ST[k] ||= {}; ST.rec ||= {}; if (DB) applyRecOverlay(); bump(); render(); });
   if (DB && (!DB.config?.data_inici_cicle || !DB.options)) DB = null;
   render();
+  setupWeb();
   if (fsaSupported()) {
     try {
       const h = await idb.get("handle-v3");
