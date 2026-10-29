@@ -7,9 +7,7 @@
 <!-- L'app no es connecta a cap servidor: si algun text de l'Excel intentés carregar o enviar res a fora, el navegador ho bloqueja -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; worker-src 'self'; style-src 'unsafe-inline'; img-src 'self' data: blob:; media-src data: blob:; font-src data:; connect-src 'none'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <title>A taula!</title>
-<!-- Publicada a la web (GitHub Pages) es pot instal·lar com una app; obrint l'HTML com a fitxer, aquestes línies no fan res -->
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
+
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%A5%97%3C/text%3E%3C/svg%3E">
 <style>:root{
   --bg:#f6f4ef; --surface:#ffffff; --surface2:#efece4; --text:#1d1f1c; --muted:#5f655d; --line:#dcd7cc;
@@ -239,7 +237,7 @@ main.view.wide{max-width:1180px}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:50;max-height:92vh;overflow:auto;background:var(--bg);border-radius:22px 22px 0 0;transform:translateY(105%);transition:transform .24s cubic-bezier(.2,.8,.2,1);padding:0 16px calc(24px + env(safe-area-inset-bottom));max-width:760px;margin:0 auto;overscroll-behavior:contain}
 .sheet.open{transform:none}
 .sheet .grab{position:sticky;top:0;background:var(--bg);padding:12px 0 8px;display:flex;align-items:center;gap:8px;z-index:2}
-.sheet .grab h3{margin:0;font-size:1.08em;flex:1}
+.sheet .grab h3{margin:0;font-size:1.08em;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ing{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}.ing:last-child{border-bottom:0}
 .ing .q{width:84px;flex:none;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
 .steps{padding-left:0;list-style:none;counter-reset:s;margin:0}
@@ -251,7 +249,7 @@ main.view.wide{max-width:1180px}
 .stepper b{min-width:2.5ch;text-align:center;font-size:1.1em}
 input[type=search],input[type=text],input[type=url],input[type=time],input[type=date],input[type=number],select,textarea{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 12px;min-height:46px}
 label.f{display:block;font-size:.85em;font-weight:650;color:var(--muted);margin:10px 0 4px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}.grid2 input,.grid2 select{min-width:0}
 .toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + 18px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:.9em;opacity:0;transition:opacity .2s,transform .2s;z-index:60;pointer-events:none;max-width:90vw}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 details>summary{cursor:pointer;font-weight:650;padding:6px 0;list-style:none}
@@ -263,7 +261,7 @@ details>summary::before{content:"▸ ";color:var(--muted)}details[open]>summary:
 /* v3 */
 .mini.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 .row.wrap{flex-wrap:wrap}
-.pickbar{position:sticky;top:-1px;z-index:3;display:flex;gap:10px;padding:8px 0 12px;background:var(--surface);margin-bottom:6px;border-bottom:1px solid var(--line)}
+.pickbar{position:sticky;top:calc(var(--grabh, 56px) - 1px);z-index:1;display:flex;gap:10px;padding:8px 0 12px;background:var(--surface);margin-bottom:6px;border-bottom:1px solid var(--line)}
 .pickbar .btn{flex:1}
 .pv-acomp{margin:0 0 10px}
 .seasonbar{display:flex;align-items:center;gap:10px;margin-top:8px}
@@ -325,7 +323,7 @@ textarea{font:inherit;color:var(--text);resize:vertical;line-height:1.4}
 .sugg small{color:var(--muted);font-size:.78em;margin-left:4px}
 textarea{width:100%}
 .ed-list{padding:4px 10px}
-.ed-ing{display:grid;grid-template-columns:1fr 110px auto;gap:6px 8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.ed-ing{display:grid;grid-template-columns:minmax(0,1fr) 88px auto;gap:6px 8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
 .ed-ing:last-child{border-bottom:0}
 .ed-ing.bad input[data-ln]{border-color:var(--danger)}
 .ed-q{display:flex;align-items:center;gap:4px}.ed-q input{min-width:0}
@@ -342,7 +340,7 @@ textarea{width:100%}
 .dot.pr{background:var(--warn)}
 .invact{gap:8px;margin:12px 0}.invact .addbtn{flex:1;margin:0}
 .btn.on{background:var(--accent-soft);color:var(--accent)}
-.selbox{width:24px;height:24px;border-radius:7px;border:2px solid var(--line);display:grid;place-items:center;font-size:.8em;font-weight:800;flex:none;color:var(--accent-ink)}
+.selbox{width:24px;height:24px;border-radius:7px;border:2px solid var(--muted);display:grid;place-items:center;font-size:.8em;font-weight:800;flex:none;color:var(--accent-ink)}
 .selbox.on{background:var(--accent);border-color:var(--accent)}
 .inv-row.selmode{grid-template-columns:auto 1fr auto}
 .rb-row.selmode{grid-template-columns:auto 1fr;cursor:pointer}
@@ -456,7 +454,7 @@ main.view.wide{max-width:none}
 /* v8.1: a la vista Mes, la graella ocupa tota l'amplada i el detall del dia queda centrat */
 .mday{max-width:760px;margin:0 auto}
 /* v8.2 */
-.chsearch{position:sticky;top:-1px;z-index:3;margin-bottom:8px;background:var(--surface)}
+.chsearch{position:sticky;top:calc(var(--grabh, 56px) - 1px);z-index:1;margin-bottom:8px;background:var(--surface)}
 .pchips{display:inline-flex;gap:4px;margin-left:6px}
 .pchip{border:1.5px solid var(--line);background:var(--bg);color:var(--muted);border-radius:99px;padding:1px 8px;font-size:.72em;font-weight:700;min-height:22px;text-decoration:line-through;transition:background .15s,color .15s,border-color .15s}
 .pchip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);text-decoration:none}
@@ -471,7 +469,7 @@ main.view.wide{max-width:none}
 .shopname{border:0;background:none;text-align:left;padding:0;color:var(--text);cursor:pointer;font:inherit;display:flex;flex-direction:column;flex:1;min-width:0}
 .shopname:hover .tt{color:var(--accent);text-decoration:underline}
 .use-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-.use-row:last-child{border-bottom:0}
+.use-row:last-child{border-bottom:0}.use-row .qty{max-width:none;white-space:nowrap;overflow-wrap:normal}
 .use-row .ct{display:flex;flex-direction:column}.use-row small{color:var(--muted)}
 #keepT{font-family:ui-monospace,Menlo,monospace;font-size:.85em}
 /* v8.5 */
@@ -517,11 +515,12 @@ main.view.wide{max-width:none}
 .search:focus-within{outline:2px solid var(--accent);outline-offset:2px}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .sheet:not(.open){visibility:hidden;transition:transform .24s cubic-bezier(.2,.8,.2,1),visibility 0s linear .24s}
-.toast{pointer-events:auto;cursor:pointer;display:flex;align-items:center;gap:12px}
+.toast{pointer-events:auto;cursor:pointer;display:flex;align-items:center;gap:12px;width:max-content;max-width:min(90vw,520px)}
+.toast:not(.show){pointer-events:none;visibility:hidden;transition:opacity .2s,transform .2s,visibility 0s linear .2s}
 .toast button{border:0;background:none;color:inherit;font-weight:800;text-decoration:underline;padding:4px;min-height:32px}
 .cook-slide .steps li:focus-visible{outline-offset:4px}
 /* Capçalera al mòbil: amb «Cuinant» i l'estat de l'Excel alhora no ha de passar de l'amplada */
-@media (max-width:440px){.cookbtn .ck-l{display:none}.cookbtn{padding:6px 10px}.sync{max-width:34vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+@media (max-width:440px){.cookbtn .ck-l{display:none}.cookbtn{padding:6px 10px}.sync{font-size:0;padding:6px 10px;min-width:36px}.sync::before{content:attr(data-short);font-size:13px}}
 /* Tasques i àpats junts: els botons de canviar i saltar sempre a la dreta */
 .mrow .ct{display:flex;flex-direction:column;align-items:flex-start;gap:1px}.mrow .meal-name{padding:0;font-size:1.02em}
 .mr-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px;width:100%}.mr-act{display:flex;gap:6px;flex:none;align-self:flex-start}
@@ -557,7 +556,7 @@ main.view.cols{max-width:760px}
 .today-h h2 .sub{font-size:.62em;font-weight:500;margin-left:6px;letter-spacing:0}.today-h .iconbtn{width:40px;height:40px;font-size:1.05em}
 @media (min-width:1100px){.side-tools{margin-top:12px}}
 /* Qui fa cada cosa */
-.tag.who0{background:var(--nevera-soft);color:var(--nevera)}.tag.who1{background:var(--prep-soft);color:var(--prep-t)}.tag.who2{background:var(--cuinar-soft);color:var(--cuinar)}.tag.who3{background:var(--cong-soft);color:var(--cong-t)}
+.tag.who0{background:var(--nevera-soft);color:color-mix(in srgb,var(--nevera) 80%,var(--text))}.tag.who1{background:var(--prep-soft);color:var(--prep-t)}.tag.who2{background:var(--cuinar-soft);color:var(--cuinar)}.tag.who3{background:var(--cong-soft);color:var(--cong-t)}
 .ses-card{padding:10px 14px}.ses-row{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--line)}.ses-row .tag{flex:none;margin-top:2px}
 .ses-l{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px}.ses-i{font-weight:650;color:var(--text);padding:0}.ses-i.next{color:var(--accent);text-decoration:underline}.ses-i.done{color:var(--muted);text-decoration:line-through;font-weight:500}.ses-a{color:var(--muted)}
 .bp-who .tag{font-size:.95em}
@@ -567,7 +566,9 @@ main.view.cols{max-width:760px}
 body.sheet-open .timerbar{bottom:calc(10px + env(safe-area-inset-bottom))}
 body.has-timers .toast{bottom:calc(var(--tab-h) + 24px + var(--tbh, 0px) + env(safe-area-inset-bottom))}
 body.sheet-open.has-timers .toast{bottom:calc(20px + var(--tbh, 0px) + env(safe-area-inset-bottom))}
-body.has-timers .sheet{padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+body.has-timers{padding-bottom:calc(var(--tab-h) + var(--tbh, 0px) + 24px + env(safe-area-inset-bottom))}
+body.has-timers .sheet{padding-bottom:calc(var(--tbh, 0px) + 24px + env(safe-area-inset-bottom))}
+@media (max-height:500px){.timerbar{flex-direction:row;flex-wrap:wrap}.tchip{flex:1 1 220px;padding:4px 8px 4px 10px}.tchip button{min-height:30px}}
 .tchip{display:flex;align-items:center;gap:10px;background:var(--text);color:var(--bg);border-radius:14px;padding:8px 10px 8px 14px;box-shadow:var(--shadow)}
 .tchip .tc-l{flex:1;min-width:0;font-size:.85em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tchip b{font-variant-numeric:tabular-nums;font-size:1.15em}
 .tchip button{border:0;background:color-mix(in srgb,var(--bg) 18%,transparent);color:inherit;border-radius:10px;min-width:40px;min-height:36px;font-weight:800}
@@ -577,7 +578,7 @@ body.has-timers .sheet{padding-bottom:calc(90px + env(safe-area-inset-bottom))}
 .nw-row{display:grid;grid-template-columns:76px 1fr;gap:2px 10px;padding:7px 0;border-top:1px solid var(--line);font-size:.92em}
 .nw-row .bar{grid-column:1/-1}.nw-n{font-weight:650}.nw-v{font-variant-numeric:tabular-nums;text-align:right}.nw-d{grid-column:1/-1;font-size:.82em;color:var(--muted)}
 .nw-row.warn .nw-d,.nw-row.warn .nw-n{color:var(--warn-t);font-weight:700}
-.bplan{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px}.bplan li{display:flex;flex-direction:column}.bp-n{text-align:left;font-weight:700;font-size:1em;padding:0}
+.bplan{margin:0;padding-left:24px;display:flex;flex-direction:column;gap:10px}.bplan li{display:list-item}.bplan .bp-in{display:flex;flex-direction:column}.bp-n{text-align:left;font-weight:700;font-size:1em;padding:0}.bp-who{margin-left:auto}
 /* Cuinant amb el mòbil de costat: capçalera compacta perquè es vegin els passos */
 @media (orientation:landscape) and (max-height:500px){
   .sheet.cooking .grab{padding-block:2px}.sheet.cooking .wake-ind{display:none}
@@ -823,8 +824,9 @@ const isoOf = v => { const d = toDate(v); return d ? iso(d) : ""; };
 function toast(msg, action = null) {
   const t = $("#toast"); if (!t) return; t.textContent = msg;
   if (action) { const b = document.createElement("button"); b.textContent = action.label; b.onclick = e => { e.stopPropagation(); t.classList.remove("show"); action.fn(); }; t.appendChild(b); }
-  t.onclick = () => t.classList.remove("show");
-  t.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), Math.min(8000, Math.max(action ? 5000 : 2600, String(msg).length * 60)));
+  t.onclick = () => { t.classList.remove("show"); t.textContent = ""; };
+  t.classList.add("show"); clearTimeout(toast._t);
+  toast._t = setTimeout(() => { t.classList.remove("show"); setTimeout(() => { if (!t.classList.contains("show")) t.textContent = ""; }, 250); }, Math.min(8000, Math.max(action ? 5000 : 2600, String(msg).length * 60)));
 }
 const smooth = () => matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "auto" : "smooth";
 function hash(s) { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) | 0; return (h >>> 0).toString(36); }
@@ -859,7 +861,7 @@ function beginStep() { if (HIST.open || HIST.quiet) return; HIST.open = true; HI
 function restoreSnap(json) {
   const o = JSON.parse(json);
   for (const t of UNDO_T) { const a = ST[t], b = o[t] || {};
-    for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) ST.pending[`${t}|${k}`] = b[k] ? 1 : 0;
+    for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) { ST.pending[`${t}|${k}`] = b[k] ? 1 : 0; if (b[k]) b[k] = { ...b[k], Actualitzat: nowIso() }; }
     ST[t] = b; }
   bump(); saveST(); scheduleSync(); closeSheet(true); render(); renderUndo();
 }
@@ -1038,12 +1040,18 @@ async function reconnect() {
 const diskRev = db => num(db.config.rev_desat);
 async function loadFromHandle(force = false) {
   if (FS.saving && !force) { await new Promise(r => setTimeout(r, 300)); if (FS.saving) return; }
-  const f = await FS.handle.getFile(), bytes = new Uint8Array(await f.arrayBuffer()), p = parseWorkbook(bytes, f.name);
+  let f, p;
+  for (let i = 0; i < 3; i++) { // si mentre es llegia s'ha desat, aquella lectura ja és vella: es torna a llegir
+    const seq = FS.writeSeq || 0; f = await FS.handle.getFile(); const bytes = new Uint8Array(await f.arrayBuffer()); p = parseWorkbook(bytes, f.name);
+    if ((FS.writeSeq || 0) === seq) break; }
   FS.lastMod = f.lastModified;
+  const rs = revState(p.db.config, f.name), mine = SYNC[f.name]?.rev || 0;
   // l'Excel té una revisió més antiga que l'última que hi ha escrit aquest dispositiu: Drive l'ha tornat enrere
-  const mine = SYNC[f.name]?.rev || 0;
-  if (diskRev(p.db) < mine) { FS.conflict = { disk: diskRev(p.db), mine, parsed: p, name: f.name }; render(); showRevert(); return; }
+  if (rs === "enrere") { FS.conflict = { disk: diskRev(p.db), mine, parsed: p, name: f.name }; render(); showRevert(); return; }
+  if (rs === "nou") { SYNC[f.name] = { rev: diskRev(p.db), ver: String(p.db.config.versio_dades || "") }; lsSet(K_SYNC, SYNC); }
   FS.conflict = null; applyLoaded(p);
+  // un altre dispositiu ha desat el mateix número de revisió: el nostre últim desat s'ha perdut i es torna a aplicar
+  if (rs === "trepitjat") { const n = await recoverMine(f.name, p.st); SYNC[f.name] = { ...SYNC[f.name], id: String(p.db.config.rev_id || "") }; lsSet(K_SYNC, SYNC); if (n) { toast(`Un altre dispositiu ha desat alhora: s'han recuperat ${n} canvis d'aquí`); scheduleSync(300); } }
   FS.status = "Llegit a les " + new Date().toLocaleTimeString("ca-ES", { hour: "2-digit", minute: "2-digit" });
   render();
 }
@@ -1059,12 +1067,12 @@ async function resolveRevert(mine) {
   const c = FS.conflict; if (!c) return; closeSheet(true);
   try {
     if (mine) {
-      const last = await idb.get("last|" + c.name, "bak");
-      if (last?.bytes) { const w = await FS.handle.createWritable(); await w.write(last.bytes); await w.close(); FS.conflict = null; await loadFromHandle(); }
-      else { // sense la còpia: es tornen a desar totes les files que l'Excel té diferents de les d'aquí
-        for (const t of Object.keys(APP_SHEETS)) { const d = c.parsed.st[t]; for (const k of new Set([...Object.keys(d), ...Object.keys(ST[t])])) if (JSON.stringify(d[k]) !== JSON.stringify(ST[t][k])) ST.pending[`${t}|${k}`] = ST[t][k] ? 1 : 0; }
-        SYNC[c.name] = { rev: c.disk }; lsSet(K_SYNC, SYNC); FS.conflict = null; saveST(); }
-      toast("Canvis recuperats"); scheduleSync(200);
+      // es tornen a desar, fila a fila, els canvis d'aquí que l'Excel no té (les files d'altres dispositius es respecten);
+      // abans d'escriure, el desat fa una còpia de seguretat de l'Excel tal com és ara
+      SYNC[c.name] = { rev: c.disk, ver: String(c.parsed.db.config.versio_dades || "") }; lsSet(K_SYNC, SYNC); FS.conflict = null;
+      let n = await recoverMine(c.name, c.parsed.st);
+      if (!n) for (const t of Object.keys(APP_SHEETS)) { const d = c.parsed.st[t]; for (const k of Object.keys(ST[t])) if (JSON.stringify(d[k]) !== JSON.stringify(ST[t][k]) && String(ST[t][k].Actualitzat || "") >= String(d[k]?.Actualitzat || "")) { ST.pending[`${t}|${k}`] = 1; n++; } }
+      saveST(); toast(`Canvis recuperats (${n})`); scheduleSync(200);
     } else { SYNC[c.name] = { rev: c.disk }; lsSet(K_SYNC, SYNC); ST.pending = {}; FS.conflict = null; applyLoaded(c.parsed); toast("Fet servir l'Excel de Drive"); }
   } catch (e) { alertBox("No s'ha pogut resoldre", e.message); }
   render();
@@ -1092,12 +1100,53 @@ function sheetUpdate(wb, t, rows) {
   return out;
 }
 // La fila de Config amb el comptador de desats (rev_desat)
-function configUpdate(wb, rev) {
+function configUpdate(wb, rev, id) {
   const aoa = XLSX.utils.sheet_to_json(wb.Sheets.Config, { header: 1, raw: true, defval: "", blankrows: false });
   const head = (aoa[0] || []).map(h => String(h).trim()), ci = head.indexOf("Clau"), vi = head.indexOf("Valor"), di = head.indexOf("Descripcio");
   const body = aoa.slice(1); let row = body.find(a => String(a[ci]).trim() === "rev_desat");
   if (!row) { row = head.map(() => ""); row[ci] = "rev_desat"; if (di >= 0) row[di] = "Comptador de desats de l'app (no l'editis): serveix per detectar si l'Excel torna a una versió anterior"; body.push(row); }
-  row[vi] = rev; return body;
+  row[vi] = rev;
+  let rid = body.find(a => String(a[ci]).trim() === "rev_id"); // qui ha fet l'últim desat (per detectar dos desats amb el mateix número)
+  if (!rid) { rid = head.map(() => ""); rid[ci] = "rev_id"; if (di >= 0) rid[di] = "Identificador de l'últim desat de l'app (no l'editis)"; body.push(rid); }
+  rid[vi] = id; return body;
+}
+// Com està l'Excel respecte de l'últim desat d'aquest dispositiu:
+//  «nou» (un altre Excel o una altra versió de dades: es comença de zero), «enrere» (Drive l'ha tornat a una versió anterior),
+//  «trepitjat» (un altre dispositiu ha desat el mateix número de revisió i el nostre canvi s'ha perdut) o «ok»
+function revState(cfg, name) {
+  const mine = SYNC[name]; if (!mine?.rev) return "ok";
+  const rev = num(cfg.rev_desat), id = String(cfg.rev_id || ""), ver = String(cfg.versio_dades || "");
+  if (!String(cfg.rev_desat ?? "").trim() || (mine.ver && ver !== mine.ver)) return "nou";
+  if (rev < mine.rev) return "enrere";
+  if (rev === mine.rev && mine.id && id && id !== mine.id) return "trepitjat";
+  return "ok";
+}
+// Torna a posar com a pendents les files de l'últim desat d'aquest dispositiu que a l'Excel falten o hi són més antigues
+async function recoverMine(name, diskSt) {
+  const last = await idb.get("last|" + name, "bak").catch(() => null); if (!last?.bytes) return 0;
+  const lastSt = parseStoreFromWb(XLSX.read(last.bytes, { type: "array" })).st; let n = 0;
+  for (const t of Object.keys(APP_SHEETS)) for (const [k, r] of Object.entries(lastSt[t])) {
+    const d = diskSt[t][k]; if (d && (JSON.stringify(d) === JSON.stringify(r) || String(d.Actualitzat || "") > String(r.Actualitzat || ""))) continue;
+    if (ST.pending[`${t}|${k}`] === 0) continue; // esborrat aquí després
+    if (!ST[t][k] || String(ST[t][k].Actualitzat || "") < String(r.Actualitzat || "")) ST[t][k] = r;
+    ST.pending[`${t}|${k}`] = 1; n++; }
+  // les files que el nostre últim desat ja no tenia (esborrades aquí) i que no s'han tocat després: es tornen a esborrar
+  for (const t of Object.keys(APP_SHEETS)) for (const [k, d] of Object.entries(diskSt[t])) {
+    if (lastSt[t][k] || ST.pending[`${t}|${k}`] === 1 || String(d.Actualitzat || "") > String(last.at || "")) continue;
+    delete ST[t][k]; ST.pending[`${t}|${k}`] = 0; n++; }
+  if (n) saveST(); return n;
+}
+// Estat d'una altra pestanya: fila a fila, guanya la més nova; els pendents de totes dues es mantenen
+function mergeTab(json) {
+  let o; try { o = JSON.parse(json); } catch (e) { return; } if (!o) return;
+  for (const t of Object.keys(APP_SHEETS)) { const a = ST[t], b = o[t] || {};
+    for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
+      const pk = `${t}|${k}`;
+      if (o.pending?.[pk] === 0 && !b[k]) { if (ST.pending[pk] !== 1) { delete a[k]; ST.pending[pk] = 0; } continue; } // esborrat a l'altra (si aquí no s'ha tocat)
+      if (b[k] && (!a[k] || String(b[k].Actualitzat || "") > String(a[k].Actualitzat || ""))) { a[k] = b[k]; if (o.pending?.[pk]) ST.pending[pk] = 1; } } }
+  for (const [id, r] of Object.entries(o.rec || {})) if (!ST.rec[id]) { ST.rec[id] = r; if (o.pending?.[`rec|${id}`]) ST.pending[`rec|${id}`] = 1; }
+  HIST.undo = []; HIST.redo = []; renderUndo(); // desfer aquí no ha de desfer el que s'ha fet a l'altra finestra
+  if (DB) applyRecOverlay(); bump(); render();
 }
 let syncTimer = null;
 function scheduleSync(ms = 1200) { clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, ms); renderStatus(); }
@@ -1115,7 +1164,7 @@ async function syncNow() {
     const wait = Math.min(300000, 15000 * 2 ** Math.min(FS.errors - 1, 5)); // 15 s, 30 s, 1 min… fins a 5 min
     if (FS.errors === 1 || FS.errors % 5 === 0) toast(`No s'ha pogut desar a l'Excel: ${e.message.slice(0, 120)} (es tornarà a provar)`);
     clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, wait);
-  } finally { FS.saving = false; renderStatus(); }
+  } finally { FS.saving = false; renderStatus(); if (mergeTab.later) { const j = mergeTab.later; mergeTab.later = null; mergeTab(j); } }
 }
 async function syncLocked() {
   // fotografia del que es desa: després només es treuen els pendents que no han canviat mentre es desava
@@ -1125,8 +1174,9 @@ async function syncLocked() {
   const f = await FS.handle.getFile(); const buf = new Uint8Array(await f.arrayBuffer());
   const changedOutside = f.lastModified !== FS.lastMod;
   const wbNow = XLSX.read(buf, { type: "array" }), { st } = parseStoreFromWb(wbNow);
-  const rev0 = num((sheetRows(wbNow, "Config") || []).find(r => r.Clau === "rev_desat")?.Valor), mine = SYNC[f.name]?.rev || 0;
-  if (rev0 < mine) { await loadFromHandle(true); return; } // Drive l'ha tornat enrere: es pregunta abans de desar res
+  const cfg = Object.fromEntries((sheetRows(wbNow, "Config") || []).map(r => [r.Clau, r.Valor])), rev0 = num(cfg.rev_desat), rs = revState(cfg, f.name);
+  if (rs === "enrere" || rs === "trepitjat") { await loadFromHandle(true); return; } // es resol abans de desar res
+  const mine = rs === "nou" ? 0 : (SYNC[f.name]?.rev || 0);
   const rows = { inv: {}, plan: {}, reg: {}, compra: {} };
   for (const pk of keys) { const [t, ...rest] = pk.split("|"); const key = rest.join("|"); if (t === "rec") continue;
     const r = snap[pk][0] ? JSON.parse(snap[pk][1]) : null;
@@ -1136,14 +1186,14 @@ async function syncLocked() {
   for (const t of Object.keys(APP_SHEETS)) if (Object.keys(rows[t]).length) updates[APP_SHEETS[t]] = sheetUpdate(wbNow, t, rows[t]);
   const recIds = keys.filter(k => k.startsWith("rec|")).map(k => k.slice(4));
   if (recIds.length) Object.assign(updates, recipeSheetUpdates(wbNow, recIds));
-  const rev = Math.max(rev0, mine) + 1; updates.Config = configUpdate(wbNow, rev);
+  const rev = Math.max(rev0, mine) + 1, wid = uid(); updates.Config = configUpdate(wbNow, rev, wid);
   const out = await XlsxPatch.patch(buf, updates);
   // just abans d'escriure: si l'Excel ha canviat mentre es preparava, es torna a començar amb el fitxer nou
   if ((await FS.handle.getFile()).lastModified !== f.lastModified) { scheduleSync(300); return; }
   await backupBefore(buf, rev0);
   const w = await FS.handle.createWritable(); await w.write(out); await w.close();
   const f2 = await FS.handle.getFile(); FS.lastMod = f2.lastModified;
-  SYNC[f.name] = { rev, at: nowIso() }; lsSet(K_SYNC, SYNC); idb.set("last|" + f.name, { at: nowIso(), rev, bytes: out }, "bak").catch(() => { });
+  SYNC[f.name] = { rev, id: wid, ver: String(cfg.versio_dades || ""), at: nowIso() }; lsSet(K_SYNC, SYNC); FS.writeSeq = (FS.writeSeq || 0) + 1; idb.set("last|" + f.name, { at: nowIso(), rev, bytes: out }, "bak").catch(() => { });
   for (const pk of keys) if (pk in ST.pending && ST.pending[pk] === snap[pk][0] && JSON.stringify(rowOf(pk) ?? null) === snap[pk][1]) delete ST.pending[pk];
   // l'estat passa a ser el del disc, amb els canvis que encara queden pendents (els fets mentre es desava) a sobre
   for (const t of Object.keys(APP_SHEETS)) { const cur = ST[t]; ST[t] = st[t];
@@ -1169,7 +1219,9 @@ function renderStatus() {
   else if (FS.handle) { el.textContent = "Reconnecta"; el.className = "sync warn"; el.hidden = false; }
   // sense accés a fitxers (alguns navegadors), els canvis només són en aquest navegador fins que s'exporten
   else if (!fsaSupported() && DB) { el.hidden = !n; el.textContent = `⚠ ${n} només aquí`; el.className = "sync warn"; el.title = "Canvis guardats només en aquest navegador: exporta'ls a Configuració"; }
-  else { el.hidden = !(fsaSupported() && DB); el.textContent = "Connecta l'Excel"; el.className = "sync warn"; }
+  else { el.hidden = !(fsaSupported() && DB); el.textContent = "Connectar l'Excel"; el.className = "sync warn"; }
+  // al mòbil, l'estat en curt (vegeu CSS .sync::before)
+  el.dataset.short = /^Desat/.test(el.textContent) ? "✓" : /^Desant|per desar$/.test(el.textContent) ? "⟳" : /Connecta/.test(el.textContent) ? "Excel" : "⚠";
 }
 async function loadReadOnly(file) {
   if (FS.handle) { toast("Ja hi ha un Excel connectat: per llegir-ne un altre, fes servir «Canviar de fitxer»"); return; }
@@ -1194,6 +1246,9 @@ function seasonAuto(d) {
 }
 function season(d) { return seasonAuto(d); }
 const seasonLabel = () => `Temporada ${season(today()) === "Estiu" ? "☀ d'estiu" : "❄ d'hivern"} (automàtica)`;
+// Els textos de l'Excel de vegades citen receptes pel codi: «(REC-023)» es treu i «o REC-022» passa a «o ceba caramel·litzada»
+const noIds = s => String(s ?? "").replace(/\s*\((REC-\d+)\)/g, "").replace(/(?<![{\w-])REC-\d+(?![}\w])/g, id => DB?.receptes[id] ? recName(id).toLowerCase() : id);
+const pl = (n, s, p) => `${n} ${n === 1 ? s : p}`;
 const recName = id => !id ? "" : String(id).includes("+") ? String(id).split("+").map((x, i) => i ? recName(x).toLowerCase() : recName(x)).join(" + ") : (DB.receptes[id]?.Nom || id);
 const rowFor = (d, apat) => DB.menu[`${cycleDay(d)}|${apat}`];
 function defaultOption(d, apat) {
@@ -1330,6 +1385,8 @@ const racTxt = (rid, q) => POT(rid) ? fmtQty(q, "g") : `${fmtN(q, 1)} rac.`;
 const potName = rid => recName(rid).split(" (")[0].toLowerCase();
 // Pes d'una ració ja cuita (columna Pes_Racio_Cuit_g): per repartir la tanda en bosses i saber quant és una ració
 const cookedG = rid => num(DB.receptes[rid]?.Pes_Racio_Cuit_g);
+// el que s'afegeix en servir és la llegum (guisats de llegum)?
+const baseIsStew = rid => (DB.ri[rid] || []).some(l => yes(l.Afegir_En_Servir) && !yes(l.Opcional) && DB.ingredients[l.ID_Ingredient]?.Grup_Proteic === "Llegum");
 const isBase = rid => (DB.ri[rid] || []).some(l => yes(l.Afegir_En_Servir) && !yes(l.Opcional)) && ["Sessió dissabte", "Vespre abans"].includes(MODE(rid));
 const wTxt = (rid, q) => cookedG(rid) && !POT(rid) ? fmtQty(cookedG(rid) * q, "g") : "";
 const sameFactor = () => new Set(activePersons().map(p => num(p.Factor_Racio) || 1)).size <= 1;
@@ -1338,9 +1395,9 @@ function portionLine(rid, rac) {
   const per = sameFactor() ? "" : activePersons().map(p => `${esc(p.Nom)} ≈ ${fmtQty(g * (num(p.Factor_Racio) || 1), "g")}`).join(", ");
   if (isBase(rid)) {
     const add = (DB.ri[rid] || []).filter(l => yes(l.Afegir_En_Servir) && !yes(l.Opcional) && DB.ingredients[l.ID_Ingredient]);
-    const addTxt = f => add.map(l => `${fmtQty(num(l.Quantitat_Per_Racio) * f, l.Unitat)} de ${esc(DB.ingredients[l.ID_Ingredient].Nom.split(" (")[0].toLowerCase())}`).join(" i ");
+    const addTxt = f => add.map(l => { const n = DB.ingredients[l.ID_Ingredient].Nom.split(" (")[0].toLowerCase(); return `${l.Unitat === "u" ? fracU(num(l.Quantitat_Per_Racio) * f) : fmtQty(num(l.Quantitat_Per_Racio) * f, l.Unitat)} ${de(n)}${esc(n)}`; }).join(" i ");
     const perB = sameFactor() ? "" : activePersons().map(p => { const f = num(p.Factor_Racio) || 1; return `${esc(p.Nom)} ≈ ${fmtQty(g * f, "g")} de base + ${addTxt(f)}`; }).join(" · ");
-    return `<p class="sub portion">⚖️ 1 ració (1 persona) = <b>${fmtQty(g, "g")} de base</b> (verdures i caldo, ja cuita) + <b>${addTxt(1)}</b>, que s'afegeix el dia de menjar · ${fmtN(rac, 1)} rac. ≈ ${fmtQty(g * rac, "g")} de base${perB ? `<br>Per persona: ${perB}` : ""}</p>`;
+    return `<p class="sub portion">⚖️ 1 ració (1 persona) = <b>${fmtQty(g, "g")} de base</b>${baseIsStew(rid) ? " (verdures i caldo, ja cuita)" : ""} + <b>${addTxt(1)}</b>, que ${add.length > 1 ? "s'afegeixen" : "s'afegeix"} el dia de menjar · ${fmtN(rac, 1)} rac. ≈ ${fmtQty(g * rac, "g")} de base${perB ? `<br>Per persona: ${perB}` : ""}</p>`;
   }
   return `<p class="sub portion">⚖️ 1 ració (1 persona) ≈ <b>${fmtQty(g, "g")}</b> en cuit · ${fmtN(rac, 1)} rac. ≈ <b>${fmtQty(g * rac, "g")}</b>${per ? ` · per persona: ${per}` : ""}</p>`;
 }
@@ -1350,8 +1407,8 @@ const potCap = () => num(DB.config.pot_dinar_g) || 570;
 const comboOK = (rid, ac) => !!rid && !!ac && isBase(rid) && MODE(rid) === "Sessió dissabte" && MODE(ac) === "Sessió dissabte" && DB.receptes[ac]?.Categoria === "Acompanyament";
 const potSepKey = (ds, rid) => `${ds}|Pot|${rid}`;
 const potSeparat = (ds, rid) => ST.reg[potSepKey(ds, rid)]?.Descripcio === "Separat";
-const potLabel = (rid, ac, n) => `${n ? `${n} ${n === 1 ? "pot" : "pots"} de ` : ""}${recName(rid).toLowerCase()} amb ${recName(ac).toLowerCase()}`;
-const takeTask = (c, q) => ({ date: c.d, type: "take", rid: c.rid, q, text: `Treu ${racTxt(c.rid, q)} de ${potName(c.rid)} del congelador${c.parent ? ` per a ${recName(c.parent)}` : ""}`, meals: [c] });
+const potLabel = (rid, ac, n) => `${n ? `${n} ${n === 1 ? "pot" : "pots"} ${de(recName(rid))}` : ""}${recName(rid).toLowerCase()} + ${recName(ac).toLowerCase()}`;
+const takeTask = (c, q) => ({ date: c.d, type: "take", rid: c.rid, q, text: `Treu ${racTxt(c.rid, q)} de ${potName(c.rid)} del congelador${c.parent ? ` per a ${recName(c.parent).toLowerCase()}` : ""}`, meals: [c] });
 const consOf = rid => DB.conservacio[DB.receptes[rid]?.ID_Conservacio] || {};
 const satOnOrBefore = d => addDays(d, -((dayIdx(d) - 5 + 7) % 7));
 function limitFor(ref, loc, prep) {
@@ -1399,7 +1456,8 @@ function guessLoc(ing) { return ing?.Tipus === "Congelat" ? "Congelador" : ing?.
 function planBounds(from, to) {
   const cs = cycleStart(), t0 = today(), blk = d => addDays(cs, 28 * Math.floor(diffDays(cs, d) / 28));
   let a = blk(addDays(t0, -35)); if (from < addDays(a, 21)) a = blk(addDays(from, -35));
-  let e = addDays(blk(addDays(t0, 56)), 35); while (e < addDays(to, 7)) e = addDays(e, 28);
+  const WIN = num(DB.config.finestra_tanda_dies) || 21;
+  let e = addDays(blk(addDays(t0, 56)), 35); while (e < addDays(to, WIN + 7)) e = addDays(e, 28);
   return [a, e];
 }
 function computePlan(from, to) {
@@ -1419,24 +1477,35 @@ function computeRange(from, to) {
   let level = [];
   const P = prodStart();
   const top = (rid, d, apat, tupper, q, isAc = false) => { if (rid && DB.receptes[rid] && q > 0) level.push({ m: d, d, apat, rid, q, top: true, acomp: isAc, mode: modeOf(rid, true, tupper) }); };
+  // Un àpat ja menjat (de dies passats, o d'avui i marcat) que va sortir del Rebost no ha de formar tandes: si no, se n'inventarien
+  // de passades que s'enduen els àpats d'avui i futurs. Ho diu el consum desat en marcar-lo; si no es va marcar, es mira si llavors
+  // hi havia al Rebost alguna cosa d'aquella recepta.
+  const eatenFrom = (d, apat) => { try { return new Set(JSON.parse(ST.reg[`${iso(d)}|Apat|${apat}`]?.Detall || "[]").flatMap(x => String(ST.inv[x.id]?.ID_Ref || "").split("+"))); } catch (e) { return new Set(); } };
+  const invRows = Object.values(ST.inv).map(r => ({ refs: String(r.ID_Ref || "").split("+"), prep: r.Data_Preparacio ? fromIso(r.Data_Preparacio) : null }));
+  const servedFromStock = c => isDone(c.m, "Apat", c.apat) ? eatenFrom(c.m, c.apat).has(c.rid) : c.m < t0 && invRows.some(r => r.prep && r.prep <= c.d && r.refs.includes(c.rid));
   const mealsTop = [], comboHas = {}, comboItem = {};
   for (let d = P && P > from ? P : from; d <= to; d = addDays(d, 1)) for (const a of APATS) { if (P && iso(d) === iso(P) && a === "Esmorzar") continue; const m = resolveMeal(d, a); if (!m) continue; const q = eaters(d, a).length; top(m.rid, d, a, m.tupper, q); top(m.acomp, d, a, false, q, true); if (q > 0) mealsTop.push({ d, apat: a, rid: m.rid, acomp: m.acomp }); }
   // Rebost real: el que es va cuinar en dies passats i es va desar hi és amb la quantitat que queda de debò.
   // Només el que s'ha desat avui mateix encara surt de la tanda d'avui (no es compta dues vegades).
   const pool = invItems().filter(i => i.ID_Ref && !(String(i.ID_Item).startsWith("INV-B-") && i.prep && i.prep >= t0))
-    .flatMap(i => { const refs = String(i.ID_Ref).split("+"); return refs.map(ref => ({ ref, refs, item: i.ID_Item, rac: i.rac, prep: i.prep || addDays(t0, -1), loc: i.Ubicacio || "Nevera" })); });
+    .flatMap(i => { const refs = String(i.ID_Ref).split("+"); return refs.map(ref => ({ ref, refs, item: i.ID_Item, rac: i.rac, prep: i.prep || addDays(t0, -1), lim: i.lim, loc: i.Ubicacio || "Nevera" })); });
   // Estat de les tasques de cuinar dels dies passats (també dins d'una tasca agrupada, p. ex. l'esmorzar)
-  const cookReg = {};
-  for (const r of Object.values(ST.reg)) if (r.Tipus === "Tasca" && String(r.Clau).startsWith("cook|")) for (const id of String(r.Clau).slice(5).split("+")) cookReg[`${r.Data}|${id}`] = r.Fet;
+  const cookReg = {}, cookSaved = {};
+  for (const r of Object.values(ST.reg)) if (r.Tipus === "Tasca" && String(r.Clau).startsWith("cook|")) for (const id of String(r.Clau).slice(5).split("+")) { cookReg[`${r.Data}|${id}`] = r.Fet; if (/desat/.test(r.Detall || "")) cookSaved[`${r.Data}|${id}`] = 1; }
   // Una cocció d'un dia passat només compta per als àpats d'avui endavant si:
   //  - no s'ha descartat;
   //  - el que se'n va fer no es va desar al Rebost (si s'hi va desar, l'àpat ja ho agafa del Rebost amb la quantitat real);
   //  - i l'àpat no s'ha canviat després d'aquell dia (si s'ha canviat, aquella cocció no el podia incloure).
   // Si encara no s'ha marcat ni descartat, es dona per feta (surt a «tasques pendents» per confirmar-ho).
   // un àpat ja marcat com a fet es tracta com si fos passat: ja s'ha menjat (i descomptat del Rebost)
-  const past = c => c.d < t0 || isDone(c.m, "Apat", c.apat);
-  const changedAfter = (c, cook) => String(ST.plan[`${iso(c.m)}|${c.apat}`]?.Actualitzat || "").slice(0, 10) > iso(cook);
-  const pastOk = (c, cook) => { const fet = cookReg[`${iso(cook)}|${c.rid}`]; if (changedAfter(c, cook)) return false; return fet === undefined || (yes(fet) && !isRegistered(cook, c.rid)); };
+  // un àpat ja menjat no agafa res del Rebost (el que n'hi va agafar ja no és al pla: vegeu servedFromStock)
+  const past = c => c.m < t0 || isDone(c.m, "Apat", c.apat);
+  // Actualitzat és en hora UTC: es compara amb la data local
+  const localDay = s => { if (!s) return ""; const d = new Date(/Z$|[+-]\d\d:\d\d$/.test(s) ? s : s + "Z"); return isNaN(d) ? String(s).slice(0, 10) : iso(d); };
+  const changedAfter = (c, cook) => localDay(ST.plan[`${iso(c.m)}|${c.apat}`]?.Actualitzat) > iso(cook);
+  // «desat al Rebost» es guarda a la tasca (Detall); per a les antigues, es mira si la fila hi és
+  const savedFrom = (cook, rid) => !!cookSaved[`${iso(cook)}|${rid}`] || isRegistered(cook, rid);
+  const pastOk = (c, cook) => { const fet = cookReg[`${iso(cook)}|${c.rid}`]; if (changedAfter(c, cook)) return false; return fet === undefined || (yes(fet) && !savedFrom(cook, c.rid)); };
   // les subreceptes que s'afegeixen el dia de menjar (p. ex. la picada) també calen quan el plat surt del Rebost
   const childrenServe = (c, q, out) => {
     for (const l of DB.ri[c.rid] || []) { const id = l.ID_Ingredient; if (!id.startsWith("REC-") || !yes(l.Afegir_En_Servir) || yes(l.Opcional) || skipChild(id) || !DB.receptes[id]) continue;
@@ -1451,14 +1520,20 @@ function computeRange(from, to) {
     const next = [];
     for (const c of level) {
       const key = `${iso(c.m)}|${c.apat}|${c.rid}`, r = DB.receptes[c.rid], cons = consOf(c.rid);
+      if (past(c) && servedFromStock(c)) continue;
       const nev = Math.min(num(cons.Nevera_Dies), NMAX), congOk = num(cons.Congelador_Mesos) > 0;
       // si el guisat surt d'un pot que ja porta un altre cereal, aquest àpat no necessita el seu acompanyament
       if (c.top && c.acomp && comboHas[`${iso(c.m)}|${c.apat}`] && comboHas[`${iso(c.m)}|${c.apat}`] !== c.rid) { alloc[key] = { cook: "pool", loc: "Congelador", q: c.q, inCombo: true }; continue; }
       // un pot combinat dona el guisat a un àpat de guisat, i el cereal només al mateix àpat on s'ha fet servir el guisat
       const okP = p => p.refs.length < 2 || (c.top && (c.acomp ? comboItem[`${iso(c.m)}|${c.apat}`] === p.item : p.ref === p.refs[0]));
+      // del Rebost: res caducat el dia de l'àpat; si l'àpat ja té un pot combinat, el cereal surt primer d'aquest pot
+      const usePool = () => { let need = c.q; const used = [], ck = comboItem[`${iso(c.m)}|${c.apat}`];
+        const cands = pool.filter(p => p.ref === c.rid && okP(p) && p.rac > 0.01 && p.prep <= c.d && (!p.lim || p.lim >= c.d));
+        if (ck) cands.sort((a, b) => (b.item === ck) - (a.item === ck));
+        for (const p of cands) { if (need <= 0.01) break; const u = Math.min(p.rac, need); p.rac -= u; need -= u; used.push({ loc: p.loc, u, item: p.item, refs: p.refs }); }
+        return [need, used]; };
       if (!past(c)) { // primer, el que ja hi ha a l'inventari (també per als plats que es fan al moment)
-        let need = c.q; const used = [];
-        for (const p of pool) if (p.ref === c.rid && okP(p) && p.rac > 0.01 && p.prep <= c.d && need > 0.01) { const u = Math.min(p.rac, need); p.rac -= u; need -= u; used.push({ loc: p.loc, u, item: p.item, refs: p.refs }); }
+        const [need, used] = usePool();
         if (need <= 0.01) {
           alloc[key] = { cook: "pool", loc: used.some(u => u.loc === "Congelador") ? "Congelador" : "Nevera", q: c.q, items: used.filter(u => u.refs.length > 1).map(u => u.item) };
           const cu = used.find(u => u.refs.length > 1); if (c.top && !c.acomp && cu) { comboHas[`${iso(c.m)}|${c.apat}`] = cu.refs.find(x => x !== c.rid); comboItem[`${iso(c.m)}|${c.apat}`] = cu.item; }
@@ -1470,12 +1545,11 @@ function computeRange(from, to) {
       }
       if (c.mode === "Al moment") {
         alloc[key] = { cook: iso(c.d), loc: "now", q: c.q, part: c.part || 0 };
-        if (r.Tasca_Previa) tasks.push({ date: addDays(c.d, -1), type: "previa", rid: c.rid, text: r.Tasca_Previa, meals: [c] });
+        if (r.Tasca_Previa) tasks.push({ date: addDays(c.d, -1), type: "previa", rid: c.rid, text: noIds(r.Tasca_Previa), meals: [c] });
         children(c, c.d, next); continue;
       }
       if (!past(c)) { // primer, el que ja hi ha a l'inventari
-        let need = c.q; const used = [];
-        for (const p of pool) if (p.ref === c.rid && okP(p) && p.rac > 0.01 && p.prep <= c.d && need > 0.01) { const u = Math.min(p.rac, need); p.rac -= u; need -= u; used.push({ loc: p.loc, u }); }
+        const [need, used] = usePool();
         if (need <= 0.01) {
           alloc[key] = { cook: "pool", loc: used.some(u => u.loc === "Congelador") ? "Congelador" : "Nevera", q: c.q };
           const cg = used.filter(u => u.loc === "Congelador").reduce((s, u) => s + u.u, 0);
@@ -1486,10 +1560,10 @@ function computeRange(from, to) {
       }
       const list = tandas[c.rid] ||= [], pot = POT(c.rid);
       // el més aviat que es pot cuinar un àpat d'avui endavant és avui (o l'inici del mode producció)
-      const L = !past(c) ? (P && P > t0 ? P : t0) : P;
+      const L = c.m < t0 ? P : (P && P > t0 ? P : t0); // per als àpats d'avui endavant, el més aviat que es pot cuinar és avui
       const cap = Math.max(num(r.Tanda_Racions) || num(r.Racions_Sessio) || c.q, c.q), win = pot ? Math.max(30, num(cons.Congelador_Mesos) * 30) : WIN;
-      let t = list.find(t => t.used + c.q <= cap + 0.01 && c.d >= t.cook && diffDays(t.cook, c.d) <= win && (congOk || diffDays(t.cook, c.d) <= nev) && (past(c) || t.cook >= t0 || pastOk(c, t.cook)));
-      const lim = cook => !past(c) && cook < t0 && pastOk(c, cook) ? P : L; // un dia passat val si aquella cocció compta (vegeu pastOk)
+      let t = list.find(t => t.used + c.q <= cap + 0.01 && c.d >= t.cook && diffDays(t.cook, c.d) <= win && (congOk || diffDays(t.cook, c.d) <= nev) && (c.m < t0 || t.cook >= t0 || pastOk(c, t.cook)));
+      const lim = cook => c.m >= t0 && cook < t0 && pastOk(c, cook) ? P : L; // un dia passat val si aquella cocció compta (vegeu pastOk)
       if (!t && pot) { let cook = satOnOrBefore(c.d); const L2 = lim(cook); if (L2 && cook < L2) cook = c.d > L2 ? addDays(c.d, -1) : L2; t = { rid: c.rid, cook, used: 0, meals: [], mode: c.mode, cap }; list.push(t); }
       if (!t) {
         let cook = c.mode === "Vespre abans" ? addDays(c.d, -1) : satOnOrBefore(c.d);
@@ -1541,14 +1615,14 @@ function computeRange(from, to) {
     if (t.cap) { tasks.push({ date: t.cook, type: "cook", rid, q: Math.max(t.cap, t.used), nev, cong: Math.max(t.cap, t.used) - nev, mode: t.mode, pot: true, text: `Fes un pot de ${potName(rid)} (${racTxt(rid, Math.max(t.cap, t.used))}) i congela'l`, meals: t.meals }); continue; }
     const text = t.mode === "Vespre abans" ? (forTomorrow ? `Prepara per demà: ${recName(rid)}` : `Prepara: ${recName(rid)}`) : `Cuina ${recName(rid)}`;
     tasks.push({ date: t.cook, type: "cook", rid, q: t.used, nev, cong: t.used - nev, mode: t.mode, text, meals: t.meals });
-    if (r.Tasca_Previa) tasks.push({ date: addDays(t.cook, -1), type: "previa", rid, text: r.Tasca_Previa, meals: t.meals });
+    if (r.Tasca_Previa) tasks.push({ date: addDays(t.cook, -1), type: "previa", rid, text: noIds(r.Tasca_Previa), meals: t.meals });
   }
   // La mateixa recepta per descongelar (o per treure del pot) el mateix dia per a dos àpats: una sola tasca amb el total
   const same = {};
   for (const t of tasks) if ((t.type === "thaw" && !t.combo) || t.type === "take") { if (t.dead) continue; const k = `${t.type}|${iso(t.date)}|${t.rid}`;
     const o = same[k]; if (!o) { same[k] = t; continue; }
     o.q += t.q; o.meals = [...o.meals, ...t.meals]; t.dead = true;
-    if (o.type === "take") { const ps = [...new Set(o.meals.map(x => x.parent).filter(Boolean))].map(recName); o.text = `Treu ${racTxt(o.rid, o.q)} de ${potName(o.rid)} del congelador${ps.length ? ` per a ${ps.join(" i ")}` : ""}`; } }
+    if (o.type === "take") { const ps = [...new Set(o.meals.map(x => x.parent).filter(Boolean))].map(x => recName(x).toLowerCase()); o.text = `Treu ${racTxt(o.rid, o.q)} de ${potName(o.rid)} del congelador${ps.length ? ` per a ${ps.join(" i ")}` : ""}`; } }
   // Esmorzar de demà (gelatina + batut...): una sola tasca
   const bf = {};
   for (const t of tasks) if (t.type === "cook" && t.mode === "Vespre abans" && t.meals.every(m => m.apat === "Esmorzar" && m.top && diffDays(t.date, m.d) === 1)) (bf[iso(t.date)] ||= []).push(t);
@@ -1591,11 +1665,13 @@ const kgTxt = g => g >= 1000 ? `${fmtN(g / 1000, 1)} kg` : `${fmtN(Math.round(g 
 function taskHtml(t, d) {
   if (t.type === "meal") return mealRow(t.m);
   const done = taskDone(d, t), k = `${iso(d)}§${taskKey(t)}§${t.text}`;
+  if (t.logged) return `<div class="check ${done ? "done" : ""}"><label class="donebox" data-tip="Marcar com a fet"><input type="checkbox" data-task="${esc(k)}" ${done ? "checked" : ""} aria-label="Fet: ${esc(t.text)}"></label>
+    <span class="ct"><span class="tt">${taskIcon(t)} ${esc(t.text)}</span><small>${isHandled(d, "Tasca", taskKey(t)) && !done ? "Descartada" : "Registrada"} · el pla d'aquell dia ha canviat després</small></span></div>`;
   let sub, sub2 = "";
   if (t.group === "esmorzar") sub = `Per a ${mealsLabel(t.meals)}`;
   else if (t.pot) sub = `${t.nev ? `${racTxt(t.rid, t.nev)} per avui · ` : ""}${racTxt(t.rid, t.cong)} al congelador${t.meals.length ? ` · primer per a ${mealsLabel(t.meals.slice(0, 2))}` : ""}`;
   else if (t.type === "cook") { const g = cookedG(t.rid);
-    sub = `${racR(t.q)}${g ? ` ≈ ${kgTxt(g * t.q)} ${isBase(t.rid) ? "de base (sense la llegum)" : "en cuit"} · 1 ració ≈ ${kgTxt(g)}` : ""}${t.nev > 0.01 ? ` · nevera ${racR(t.nev)}` : ""}${t.cong > 0.01 ? ` · congelador ${racR(t.cong)}` : ""}`;
+    sub = `${racR(t.q)}${g ? ` ≈ ${kgTxt(g * t.q)} ${isBase(t.rid) ? (baseIsStew(t.rid) ? "de base (sense la llegum)" : "de base (sense el que s'afegeix en servir)") : "en cuit"} · 1 ració ≈ ${kgTxt(g)}` : ""}${t.nev > 0.01 ? ` · nevera ${racR(t.nev)}` : ""}${t.cong > 0.01 ? ` · congelador ${racR(t.cong)}` : ""}`;
     sub2 = `Àpats: ${mealsLabel(t.meals)}`; }
   else if (t.type === "thaw" && t.combo) sub = `${t.note ? t.note + " · " : ""}En escalfar-ho afegeix-hi un raig d'aigua (el cereal absorbeix caldo) · ${mealsLabel(t.meals)}`;
   else if (t.type === "thaw") sub = `${fmtN(t.q, 1)} rac. per a ${mealsLabel(t.meals)}`;
@@ -1627,14 +1703,14 @@ function potsHtml(t, d) {
   const stew = all[0].rid === t.rid, other = stew ? all[0].acomp : all[0].rid, sep = all[0].sep, cap = potCap();
   const chips = `<div class="seg small potseg" role="group" aria-label="Com es guarda"><button aria-pressed="${!sep}" data-potsep="${iso(d)}|${all[0].rid}|junt">🫙 Al mateix pot que ${esc(recName(other).toLowerCase())}</button><button aria-pressed="${sep}" data-potsep="${iso(d)}|${all[0].rid}|sep">Per separat</button></div>`;
   if (!stew) { const q = all.reduce((s, cb) => s + cb.q, 0), rest = t.q - q;
-    return sep ? "" : `<div class="potbox">🫙 <b>${racR(q)} van als pots de ${esc(recName(other).toLowerCase())}</b>${rest > 0.5 ? ` · ${racR(rest)} en pots sols` : ""}</div>`; }
+    return sep ? "" : `<div class="potbox">🫙 <b>${racR(q)} van als pots ${de(recName(other))}${esc(recName(other).toLowerCase())}</b>${rest > 0.5 ? ` · ${racR(rest)} en pots sols` : ""}</div>`; }
   if (sep) return `<div class="potbox sub">Es guarda per separat ${de(recName(other))}${esc(recName(other).toLowerCase())}.${chips}</div>`;
   const ppl = {}; let nPots = 0;
-  for (const cb of all) for (const p of eaters(cb.d, cb.apat)) { nPots++; (ppl[p.Nom] ||= { f: num(p.Factor_Racio) || 1, meals: [] }).meals.push(cb); }
+  for (const cb of all) { nPots += Math.round(cb.q); for (const p of eaters(cb.d, cb.apat)) (ppl[p.Nom] ||= { f: num(p.Factor_Racio) || 1, meals: [] }).meals.push(cb); } // 1 pot per ració que hi va
   const one = new Set(Object.values(ppl).map(o => o.f)).size <= 1; // tots iguals: una sola línia «Cada pot»
   const rows = (one ? [["Cada pot", { f: Object.values(ppl)[0].f, meals: [] }]] : Object.entries(ppl)).map(([nom, o]) => {
     const gb = cookedG(t.rid) * o.f, gc = cookedG(other) * o.f, tot = gb + gc;
-    return `<li><b>${esc(nom)}</b>${one ? "" : ` (${o.meals.length} ${o.meals.length === 1 ? "pot" : "pots"})`}: ${gb ? `≈ ${fmtQty(gb, "g")} de base + ${fmtQty(gc, "g")} ${de(recName(other))}${esc(recName(other).toLowerCase())} = <b>${fmtQty(tot, "g")}</b>${tot > cap ? ` <span class="tag t-warn">⚠ supera els ${cap} g del pot</span>` : ""}` : `1 ració de base + 1 de ${esc(recName(other).toLowerCase())}`}</li>`;
+    return `<li><b>${esc(nom)}</b>${one ? "" : ` (${o.meals.length} ${o.meals.length === 1 ? "pot" : "pots"})`}: ${gb ? `≈ ${fmtQty(gb, "g")} de base + ${fmtQty(gc, "g")} ${de(recName(other))}${esc(recName(other).toLowerCase())} = <b>${fmtQty(tot, "g")}</b>${tot > cap ? ` <span class="tag t-warn">⚠ supera els ${cap} g del pot</span>` : ""}` : `1 ració de base + 1 ${de(recName(other))}${esc(recName(other).toLowerCase())}`}</li>`;
   }).join("");
   return `<div class="potbox"><b>🫙 ${nPots} pots de dinar, 1 per persona: base + ${esc(recName(other).toLowerCase())} al mateix pot</b><ul>${rows}</ul><span class="sub">Per a ${mealsLabel(all)}. Fes també ${esc(recName(other).toLowerCase())} avui.</span>${chips}</div>`;
 }
@@ -1644,12 +1720,18 @@ function setPotSep(ds, rid, sep) {
   // si ja estava marcat com a fet, el Rebost es refà amb la nova manera de guardar-ho
   for (const r of [rid, cb?.acomp].filter(Boolean)) if (isDone(d, "Tasca", `cook|${r}`)) { removeCook(d, r); addCook(d, r); }
 }
+// Unitats en fraccions que es poden fer a la cuina: per sota d'1, a quarts (¼, ½, ¾); a partir d'1, a mitges (1½)
+function fracU(q) {
+  if (q <= 0) return "0";
+  if (q < 1) { const n = Math.ceil(q * 4 - 0.01) / 4; return n >= 1 ? "1" : ({ 0.25: "¼", 0.5: "½", 0.75: "¾" })[n]; }
+  const n = Math.ceil(q * 2 - 0.01) / 2, w = Math.floor(n); return n % 1 ? `${w}½` : `${n}`;
+}
 function fmtQty(q, u) {
   // mai «0 g» per a una quantitat petita, i 999,7 g ja és «1 kg»
   const r = q > 0 && q < 0.1 ? 0.1 : q < 3 ? Math.round(q * 10) / 10 : q < 20 ? Math.round(q) : Math.ceil(q / 5) * 5;
   if (u === "g") return r >= 1000 ? `${fmtN(Math.max(q, r) / 1000, 2)} kg` : `${fmtN(r, 1)} g`;
   if (u === "ml") return r >= 1000 ? `${fmtN(Math.max(q, r) / 1000, 2)} L` : `${fmtN(r, 1)} ml`;
-  if (u === "u") return `${fmtN(Math.ceil(q * 2) / 2, 1)} u`;
+  if (u === "u") return `${fracU(q)} u`;
   return `${fmtN(q, 1)} ${esc(u)}`;
 }
 function periodRange() {
@@ -1657,7 +1739,7 @@ function periodRange() {
   if (p === "week") return [t, addDays(t, 6 - dayIdx(t))]; // d'avui a diumenge (els dies passats ja no es compren)
   if (p === "next") { const s = addDays(t, 7 - dayIdx(t)); return [s, addDays(s, 6)]; }
   if (p === "14") return [t, addDays(t, 13)];
-  if (p === "month") return [t, new Date(t.getFullYear(), t.getMonth() + 1, 0)];
+  if (p === "month") return [t, addDays(t, 29)];
   const a = SET.shopFrom ? fromIso(SET.shopFrom) : t, b = SET.shopTo ? fromIso(SET.shopTo) : addDays(t, 6); return a <= b ? [a, b] : [b, a];
 }
 const BOTIGUES = ["Lidl", "Ametller", "Italià", "Turris", "BonPreu", "Mercadona", "Aldi", "Altres"];
@@ -1666,10 +1748,12 @@ const shopName = i => `${i.opt ? "Opcional - " : ""}${i.ing.Nom}`;
 // Quantitat principal a la botiga: els envasos que compres (2 paquets) o, a granel, el pes; les unitats, senceres
 const PLUR = { paquet: "paquets", pot: "pots", ampolla: "ampolles", bossa: "bosses", brik: "briks", llauna: "llaunes", dotzena: "dotzenes", cap: "caps", unitat: "unitats", safata: "safates", sobre: "sobres", pack: "packs", malla: "malles", manat: "manats", tub: "tubs", test: "tests", pa: "pans" };
 function buyQty(i) {
-  const fv = String(i.ing.Format_Venda || ""), w = fv.split(/[\s(≈]/)[0].toLowerCase();
-  if (i.formats && PLUR[w] && !/^a granel/i.test(fv)) return { main: `${i.formats} ${i.formats === 1 ? w : PLUR[w]}`, small: `cal ${fmtQty(i.q, i.ing.Unitat)} · ${fv}` };
-  const main = i.ing.Unitat === "u" ? `${fmtN(Math.ceil(i.q - 0.01))} u` : fmtQty(i.q, i.ing.Unitat);
-  return { main, small: i.formats && fv ? `≈ ${i.formats} × ${fv}` : "" };
+  const fv = String(i.ing.Format_Venda || ""); let w = fv.split(/[\s(≈]/)[0].toLowerCase(); if (!PLUR[w] && PLUR[w.replace(/s$/, "")]) w = w.replace(/s$/, ""); // «Sobres» → sobre
+  const need = i.ing.Unitat === "u" ? `${fmtN(Math.ceil(i.q - 0.01))} u` : fmtQty(i.q, i.ing.Unitat);
+  if (i.formats && PLUR[w] && !/^a granel/i.test(fv)) return { main: `${i.formats} ${i.formats === 1 ? w : PLUR[w]}`, small: `cal ${need} · ${fv}` };
+  // a granel: «≈ 3 u» si se sap el pes d'una unitat
+  const per = num((fv.match(/≈\s*([\d.,]+)\s*g\/u/) || [])[1]);
+  return { main: need, small: per && i.ing.Unitat !== "u" ? `≈ ${Math.max(1, Math.ceil(i.q / per - 0.05))} u` : i.formats && fv && !/^a granel/i.test(fv) ? `≈ ${i.formats} × ${fv}` : "" };
 }
 function shopRow(L, i) {
   const done = yes(ST.reg[shopKey(L, i.id)]?.Fet), ov = shopOv(L, i.id), bq = buyQty(i);
@@ -1691,7 +1775,7 @@ function shoppingList(range, raw = false) {
     if (!rid || depth > 6 || !DB.ri[rid] || rac <= 0) return;
     const a = alloc[`${mealS}|${apat}|${rid}`];
     let pd = parentDate || mealS, so = servOnly;
-    if (a) { if (a.cook === "pool") so = true; else pd = a.cook; }
+    if (a) { if (a.cook === "pool") so = true; else { pd = a.cook; if (a.loc !== "now" && isDone(fromIso(a.cook), "Tasca", `cook|${rid}`)) so = true; } } // ja cuinat
     // si una part de l'àpat surt del Rebost, només es compra el que es cuina (el que s'afegeix en servir, sencer)
     const frac = a && a.part ? a.q / (a.q + a.part) : 1;
     for (const l of DB.ri[rid]) {
@@ -1703,7 +1787,7 @@ function shoppingList(range, raw = false) {
     }
   }
   for (let d = from; d <= addDays(to, AH); d = addDays(d, 1)) for (const apat of APATS) {
-    const m = resolveMeal(d, apat); if (!m) continue;
+    const m = resolveMeal(d, apat); if (!m || isDone(d, "Apat", apat)) continue; // ja menjat
     const fq = factorFor(d, apat); if (fq <= 0) continue;
     for (const rid of [m.rid, m.acomp]) if (rid) expand(rid, fq, iso(d), apat, 0, false, null, false, rid, "");
   }
@@ -1742,7 +1826,7 @@ function haveOf(items, ing) {
     if (i.left != null && i.left < 0) { parts.push(`${hasQty(i) ? invQty(i) : "una mica"} ${at(i)}, caducat`.trim()); continue; }
     ok.push(i);
     const qf = num(ing.Quantitat_Format), pots = num(i.Pots), rac = num(i.Racions);
-    if (pots > 0 && qf > 0) { q += pots * qf; parts.push(`${fmtN(pots, 1)} × ${ing.Format_Venda} ${at(i)}`.trim()); }
+    if (pots > 0 && qf > 0) { q += pots * qf; parts.push(`${fmtN(pots, 1)} ${/^a granel/i.test(ing.Format_Venda || "") ? "u" : "× " + ing.Format_Venda} ${at(i)}`.trim()); }
     else if (rac > 0 && ing.Unitat === "u") { q += rac; parts.push(`${fmtN(rac, 1)} u ${at(i)}`.trim()); }
     else { unsure = true; parts.push(`${hasQty(i) ? invQty(i) : "sense quantitat"} ${at(i)}`.trim()); }
   }
@@ -1782,7 +1866,7 @@ function openQtyEdit(it, L) {
 function shopText(L) {
   let t = `Compra ${fmtShort(L.from)} - ${fmtShort(L.to)}\n`;
   const ex = Object.values(ST.compra).filter(e => !yes(e.Fet)); if (ex.length) t += `\nAfegits a mà\n` + ex.map(e => `${e.Text}`).join("\n") + "\n";
-  const line = i => { const ov = shopOv(L, i.id), bq = buyQty(i); return `${shopName(i)}: ${ov ? ovText(ov) : bq.main}${!ov && bq.main !== fmtQty(i.q, i.ing.Unitat) && !/^\d+ u$/.test(bq.main) ? ` (${fmtQty(i.q, i.ing.Unitat)})` : ""}${i.note ? ` (${i.note})` : ""}`; };
+  const line = i => { const ov = shopOv(L, i.id), bq = buyQty(i); return `${shopName(i)}: ${ov ? ovText(ov) : bq.main}${!ov && i.ing.Unitat !== "u" && bq.main !== fmtQty(i.q, i.ing.Unitat) ? ` (${fmtQty(i.q, i.ing.Unitat)})` : ""}${i.note ? ` (${i.note})` : ""}`; };
   for (const [c, items] of Object.entries(L.cats)) { const p = items.filter(i => !yes(ST.reg[shopKey(L, i.id)]?.Fet)); if (p.length) t += `\n${c}\n` + p.map(line).join("\n") + "\n"; }
   const pp = (L.pantry || []).filter(i => !yes(ST.reg[shopKey(L, i.id)]?.Fet)); if (pp.length) t += `\nComprova al rebost\n` + pp.map(line).join("\n") + "\n";
   return t;
@@ -1798,7 +1882,7 @@ function openSheet(title, html, onClose = null) {
   sh.classList.add("open"); $("#overlay").classList.add("open"); sh.inert = false; sh.removeAttribute("aria-hidden"); document.body.classList.add("sheet-open");
   for (const e of [$("#view"), $(".top"), $(".tabbar")]) if (e) e.inert = true;
   if (!same) sh.scrollTop = 0; // la mateixa fitxa redibuixada (racions, editor) es queda on era
-  bindCommon($("#sheetBody"));
+  bindCommon($("#sheetBody")); sh.style.setProperty("--grabh", ($(".sheet .grab")?.offsetHeight || 56) + "px");
   if (!wasOpen) setTimeout(() => $("#sheetTitle").focus({ preventScroll: true }), 30);
 }
 function closeSheet(force = false) {
@@ -1830,8 +1914,8 @@ function recipeTags(r, small = false) {
 function stepQty(id, ref, rac) {
   const l = (DB.ri[id] || []).find(x => x.ID_Ingredient === ref); if (!l) return null;
   const q = num(l.Quantitat_Per_Racio) * rac, u = l.Unitat;
-  if (ref.startsWith("REC-")) return racTxt(ref, q);
-  if (u === "u") { const n = Math.ceil(q * 2) / 2, w = Math.floor(n); return n % 1 ? (w ? `${w}½` : "½") : `${n}`; }
+  if (ref.startsWith("REC-")) return !POT(ref) && cookedG(ref) ? `≈ ${fmtQty(cookedG(ref) * q, "g")}` : racTxt(ref, q); // «≈ 215 g de tofu marinat» millor que «1,8 rac.»
+  if (u === "u") return fracU(q);
   return fmtQty(q, u);
 }
 // Concordança dels noms comptables amb la quantitat: «1 gra d'all», «2 grans d'all», «la ½ fulla», «les 2 fulles»
@@ -1839,15 +1923,16 @@ const NOUNS = { gra: ["gra", "grans", "m"], grans: ["gra", "grans", "m"], fulla:
   llimona: ["llimona", "llimones", "f"], llimones: ["llimona", "llimones", "f"], sobre: ["sobre", "sobres", "m"], sobres: ["sobre", "sobres", "m"], full: ["full", "fulls", "m"], fulls: ["full", "fulls", "m"],
   culleradeta: ["culleradeta", "culleradetes", "f"], culleradetes: ["culleradeta", "culleradetes", "f"], llesca: ["llesca", "llesques", "f"], llesques: ["llesca", "llesques", "f"] };
 for (const [s, p, g] of [["alvocat", "alvocats", "m"], ["hamburguesa", "hamburgueses", "f"], ["truita", "truites", "f"], ["pita", "pites", "f"], ["pa", "pans", "m"], ["oblia", "oblies", "f"]]) NOUNS[s] = NOUNS[p] = [s, p, g];
-const agree = h => h.replace(/(?:\b(el|la|els|les|del|dels|de la|de les) )?<b>([\d½,]+)<\/b> ([a-zà-ú]+)/gi, (m, art, n, w) => {
+const agree = h => h.replace(/(?:\b(el|la|els|les|del|dels|de la|de les) )?<b>([\d½¼¾,]+)<\/b> ([a-zà-ú]+)/gi, (m, art, n, w) => {
   const N = NOUNS[w.toLowerCase()]; if (!N) return m;
-  const v = n === "½" ? 0.5 : parseFloat(n.replace("½", ".5").replace(",", ".")), pl = v > 1, f = N[2] === "f";
+  const v = ({ "½": 0.5, "¼": 0.25, "¾": 0.75 })[n] ?? parseFloat(n.replace("½", ".5").replace(",", ".")), pl = v > 1, f = N[2] === "f";
   let a = "";
   if (art) { const de = /^de/i.test(art), A = pl ? (f ? "les" : "els") : (f ? "la" : "el");
     a = v === 1 ? (de ? "de " : "") : (de ? (pl ? (f ? "de les" : "dels") : (f ? "de la" : "del")) : A) + " "; // amb 1, sense article: «cou 1 hamburguesa»
     if (/^[A-Z]/.test(art)) a = a.charAt(0).toUpperCase() + a.slice(1); }
   return `${a}<b>${n}</b> ${pl ? N[1] : N[0]}`;
-}).replace(/\b([Dd])e <b>(1|11|1[,½][\d]*)<\/b>/g, "$1'<b>$2</b>"); // «d'1 llimona», «d'11 g»
+}).replace(/\b(?:[Ee]ls|[Ll]es) (<b>1 (?:g|kg|ml|L|rac\.)<\/b>)/g, "$1").replace(/\b([Dd])(?:els|e les) (<b>1 (?:g|kg|ml|L|rac\.)<\/b>)/g, "$1'$2") // «espolsa-hi 1 g», no «els 1 g»
+  .replace(/\b([Dd])e <b>(1|11|1[,½][\d]*|1 (?:g|kg|ml|L|rac\.))<\/b>/g, "$1'<b>$2</b>"); // «d'1 llimona», «d'11 g»
 const stepHtml = (id, s, rac) => agree(esc(s).replace(/\{((?:ING|REC)-\d+)\}/g, (m, ref) => { const q = stepQty(id, ref, rac); return q === null ? "" : `<b>${q}</b>`; })).replace(/ {2,}/g, " ");
 // Versió original amb el mateix format que l'optimitzada: títol, «Per a», «Ingredients» (- quantitat | nom), «Pas a pas» (1. …) i «Notes:»
 function origHtml(txt) {
@@ -1888,10 +1973,10 @@ function openRecipe(id, rac, ex = null) {
     <div class="row between" style="margin-top:14px"><h2 style="margin:0">Ingredients</h2><div class="stepper"><button data-rac="-${step}" aria-label="Menys racions">−</button><b>${fmtN(rac, 1)}</b><button data-rac="${step}" aria-label="Més racions">+</button><span class="sub">${pot ? "g" : "rac."}</span></div></div>
     ${portionLine(id, rac)}<div class="card" style="margin-top:10px">${lines || '<p class="sub">Sense ingredients</p>'}</div>
     <div class="seg" style="margin-top:16px"><button aria-pressed="true" data-tab="p">${hasOrig ? "Optimitzada" : "Passos"}</button>${hasOrig ? `<button aria-pressed="false" data-tab="o">Original</button>` : ""}<button aria-pressed="false" data-tab="c">Conservació</button></div>
-    <div data-pane="p" class="card" style="margin-top:10px"><ol class="steps">${steps}</ol>${r.Canvis_Optimitzacio ? `<p class="sub"><b>Canvis respecte de l'original:</b>${String(r.Canvis_Optimitzacio).includes("\n") ? "<br>" : " "}${esc(r.Canvis_Optimitzacio).replace(/\n/g, "<br>")}</p>` : ""}${r.Notes ? `<p class="sub"><b>Notes:</b> ${esc(r.Notes)}</p>` : ""}</div>
-    ${hasOrig ? `<div data-pane="o" class="card" style="margin-top:10px" hidden>${origHtml(r.Versio_Original)}</div>` : ""}
+    <div data-pane="p" class="card" style="margin-top:10px"><ol class="steps">${steps}</ol>${r.Canvis_Optimitzacio ? `<p class="sub"><b>Canvis respecte de l'original:</b>${String(r.Canvis_Optimitzacio).includes("\n") ? "<br>" : " "}${esc(noIds(r.Canvis_Optimitzacio)).replace(/\n/g, "<br>")}</p>` : ""}${r.Notes ? `<p class="sub"><b>Notes:</b> ${esc(noIds(r.Notes))}</p>` : ""}</div>
+    ${hasOrig ? `<div data-pane="o" class="card" style="margin-top:10px" hidden>${origHtml(noIds(r.Versio_Original))}</div>` : ""}
     <div data-pane="c" class="card" style="margin-top:10px" hidden>${cons}</div>
-    ${r.Nutrients_Clau || r.Funcio_Menu ? `<dl class="kv" style="margin-top:12px"><dt>Nutrients</dt><dd>${esc(r.Nutrients_Clau)}</dd><dt>Funció</dt><dd>${esc(r.Funcio_Menu)}</dd></dl>` : ""}
+    ${r.Nutrients_Clau || r.Funcio_Menu ? `<dl class="kv" style="margin-top:12px"><dt>Nutrients</dt><dd>${esc(r.Nutrients_Clau)}</dd><dt>Funció</dt><dd>${esc(noIds(r.Funcio_Menu))}</dd></dl>` : ""}
     ${alts ? `<h2>Alternatives</h2><div class="links">${alts}</div>` : ""}${r.URL ? `<p class="sub" style="margin-top:12px">Font: ${esc(r.URL)}</p>` : ""}
     <p class="sub">${esc(r.ID_Recepta)} · ${esc(r.Categoria)} · ${esc(r.Origen)}</p>
     ${ex ? "" : `<button class="btn wide" id="recEdit" style="margin-top:8px">✎ Editar la recepta</button>`}`;
@@ -1923,7 +2008,7 @@ function cookSlide(c, i) {
     return `<div class="ing"><span class="q">${qtxt}</span><span class="n">${esc(isRec ? recName(l.ID_Ingredient) : ing?.Nom || l.Nom_Ingredient || l.ID_Ingredient)}${yes(l.Opcional) ? ` <span class="tag">opcional</span>` : ""}</span></div>`;
   }).join("");
   const steps = String(r.Passos || "").split(/\n+/).map(x => x.replace(/^\d+\.\s*/, "").trim()).filter(Boolean)
-    .map((x, k) => `<li class="${(c.done || []).includes(k) ? "sdone" : ""}" data-cstep="${i}|${k}" role="button" tabindex="0" aria-pressed="${(c.done || []).includes(k)}">${timerize(stepHtml(c.id, x, rac), `${shortRec(c.id)} · pas ${k + 1}`)}</li>`).join("");
+    .map((x, k) => `<li class="${(c.done || []).includes(k) ? "sdone" : ""}" data-cstep="${i}|${k}" role="button" tabindex="0" aria-pressed="${(c.done || []).includes(k)}">${timerize(stepHtml(c.id, x, rac), `Pas ${k + 1} · ${shortRec(c.id)}`)}</li>`).join("");
   return `<section class="cook-slide" aria-label="${esc(r.Nom)}">
     <h3 class="cook-h">${esc(r.Nom)}${assignedTo(iso(today()), c.id) ? ` ${whoTag(assignedTo(iso(today()), c.id))}` : ""}</h3>
     <div class="row wrap cook-meta"><div class="stepper"><button data-crac="${i}|-1" aria-label="Menys racions">−</button><b>${fmtN(rac)}</b><button data-crac="${i}|1" aria-label="Més racions">+</button><span class="sub">rac.</span></div>
@@ -1931,7 +2016,7 @@ function cookSlide(c, i) {
     ${portionLine(c.id, rac)}
     <details class="cook-ing"><summary>Ingredients</summary>${ings || '<p class="sub">Sense ingredients</p>'}</details>
     <h4 class="cook-sub">Preparació <span class="sub">· toca un pas per marcar-lo</span></h4>
-    <ol class="steps">${steps}</ol>${r.Notes ? `<p class="sub"><b>Notes:</b> ${esc(r.Notes)}</p>` : ""}
+    <ol class="steps">${steps}</ol>${r.Notes ? `<p class="sub"><b>Notes:</b> ${esc(noIds(r.Notes))}</p>` : ""}
     <div class="row wrap cook-act"><button class="btn primary" data-cdone="${esc(c.id)}">✓ Acabada</button><button class="btn" data-cstop="${esc(c.id)}">Deixar de cuinar</button><button class="link" data-recipe="${esc(c.id)}" data-rac-open="${rac}">Fitxa completa ›</button></div>
   </section>`;
 }
@@ -1946,7 +2031,7 @@ function openCooking(focusId) {
   $("#sheet").classList.add("cooking"); $("#sheet").onkeydown = null; keepAwake(true);
   const car = $("#cookCar"), sheet = $("#sheet");
   const cur = () => Math.round(car.scrollLeft / Math.max(1, car.clientWidth));
-  const mark = () => { const i = cur(); state.cookIdx = i; $$("#sheetBody .cdot").forEach((d, k) => d.classList.toggle("on", k === i)); $("#sheetTitle").textContent = `Cuinant ${i + 1}/${L.length} · ${recName(L[i]?.id)}`; };
+  const mark = () => { const i = cur(); state.cookIdx = i; const sl = car.children[i]; if (sl) car.style.height = sl.offsetHeight + "px"; $$("#sheetBody .cdot").forEach((d, k) => d.classList.toggle("on", k === i)); $("#sheetTitle").textContent = `Cuinant ${i + 1}/${L.length} · ${recName(L[i]?.id)}`; };
   const go = i => { i = Math.max(0, Math.min(L.length - 1, i)); car.scrollTo({ left: i * car.clientWidth, behavior: smooth() }); sheet.scrollTop = 0; };
   car.scrollLeft = idx * car.clientWidth; mark();
   let t; car.onscroll = () => { clearTimeout(t); t = setTimeout(mark, 60); };
@@ -1979,11 +2064,14 @@ function openCooking(focusId) {
 const K_TIMERS = "menu.timers.v1";
 let TIMERS = lsGet(K_TIMERS) || [];
 const saveTimers = () => lsSet(K_TIMERS, TIMERS);
-const TIME_RE = /(\d+(?:[,.]\d+)?)(?:\s*[-–]\s*(\d+(?:[,.]\d+)?))?\s*(minuts|minut|min|hores|hora|h)\b/gi;
-// només dins del text (no dins de les etiquetes HTML); els temps de menys d'1 minut (p. ex. «4 s / vel 5») no en fan
+// en tancar un temporitzador, també se'n tanca l'avís del sistema
+const closeTimerNote = id => { try { swReg?.getNotifications({ tag: "timer-" + id }).then(L => L.forEach(n => n.close())); } catch (e) { } };
+const TIME_RE = /(\d+(?:[,.]\d+)?)(?:\s*[-–]\s*(\d+(?:[,.]\d+)?))?\s*(minuts|minut|min|hores|hora|h)\b(?:\s*(?:i\s*)?(\d+)\s*(?:s|segons)\b)?/gi;
+// només dins del text (no dins de les etiquetes HTML); els temps de menys d'1 minut (p. ex. «4 s / vel 5») o de 6 hores o més no en fan
 function timerize(html, label) {
-  return html.split(/(<[^>]+>)/).map(p => p.startsWith("<") ? p : p.replace(TIME_RE, (m, a, b, u) => {
-    const n = Math.max(num(a), num(b)), secs = Math.round(n * (/^h/i.test(u) ? 3600 : 60)); if (secs < 60) return m;
+  return html.split(/(<[^>]+>)/).map(p => p.startsWith("<") ? p : p.replace(TIME_RE, (m, a, b, u, s, off, str) => {
+    if (/(menys d'|menys de |fins a |màxim |mínim |ideal )$/i.test(str.slice(Math.max(0, off - 12), off))) return m;
+    const n = Math.max(num(a), num(b)), secs = Math.round(n * (/^h/i.test(u) ? 3600 : 60)) + num(s); if (secs < 60 || secs >= 6 * 3600) return m; // remulls i reposos de moltes hores: no
     return `<button type="button" class="tmr" data-tmr="${secs}" data-tlabel="${esc(label)}" aria-label="Engegar un temporitzador de ${esc(m)}">⏱ ${m}</button>`; })).join("");
 }
 let audioCtx = null;
@@ -1994,33 +2082,42 @@ function beep() {
     for (let i = 0; i < 4; i++) { const o = audioCtx.createOscillator(), g = audioCtx.createGain(), s = t0 + i * 0.22; o.type = "sine"; o.frequency.value = 1046; o.connect(g); g.connect(audioCtx.destination);
       g.gain.setValueAtTime(0.0001, s); g.gain.exponentialRampToValueAtTime(0.6, s + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, s + 0.16); o.start(s); o.stop(s + 0.17); }
   } catch (e) { }
-  try { navigator.vibrate?.([150, 70, 150, 70, 150]); } catch (e) { }
+  try { if (navigator.userActivation?.hasBeenActive !== false) navigator.vibrate?.([150, 70, 150, 70, 150]); } catch (e) { }
 }
-let lastRing = 0;
+let lastRing = 0, aliveOsc = null;
+function keepAliveAudio(on) {
+  try { if (on && !aliveOsc && audioCtx) { const o = audioCtx.createOscillator(), g = audioCtx.createGain(); g.gain.value = 0.0005; o.frequency.value = 40; o.connect(g); g.connect(audioCtx.destination); o.start(); aliveOsc = o; }
+    else if (!on && aliveOsc) { aliveOsc.stop(); aliveOsc = null; } } catch (e) { }
+}
 function startTimer(secs, label) {
   try { audioCtx ||= new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume?.(); } catch (e) { } // el so només es pot activar amb un toc
   TIMERS.push({ id: uid(), label, total: secs, end: Date.now() + secs * 1000 }); saveTimers(); renderTimers();
 }
 // nom curt d'una recepta per a la barra de temporitzadors: «Llenties estofades amb verdures» → «Llenties estofades»
-const shortRec = id => recName(id).split(/ amb | \(| a la | al /)[0];
+const shortRec = id => recName(id).split(" (")[0]; // el nom sencer (sense parèntesi): la barra el talla si no hi cap
 const fmtClock = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return h ? `${h}:${String(m).padStart(2, "0")}:${String(x).padStart(2, "0")}` : `${m}:${String(x).padStart(2, "0")}`; };
 let timerTick = null;
 function renderTimers() {
   let bar = $("#timerBar");
-  if (!TIMERS.length) { bar?.remove(); document.body.classList.remove("has-timers"); clearInterval(timerTick); timerTick = null; return; }
-  if (!bar) { bar = document.createElement("div"); bar.id = "timerBar"; bar.className = "timerbar"; bar.setAttribute("role", "status"); bar.setAttribute("aria-live", "polite"); document.body.appendChild(bar); }
+  if (!TIMERS.length) { bar?.remove(); document.body.classList.remove("has-timers"); clearInterval(timerTick); timerTick = null; keepAliveAudio(false); return; }
+  if (!bar) { bar = document.createElement("div"); bar.id = "timerBar"; bar.className = "timerbar"; bar.setAttribute("aria-label", "Temporitzadors"); document.body.appendChild(bar);
+    bar.onclick = e => { const p = e.target.closest("[data-tplus]"), d = e.target.closest("[data-tdel]");
+      if (p) { const t = TIMERS.find(x => x.id === p.dataset.tplus); if (t) { t.end += 60000; saveTimers(); renderTimers(); } }
+      if (d) { const id = d.dataset.tdel; TIMERS = TIMERS.filter(x => x.id !== id); saveTimers(); closeTimerNote(id); renderTimers(); } }; }
   document.body.classList.add("has-timers");
   const now = Date.now();
   // mentre n'hi hagi algun d'acabat, torna a sonar cada 2 s fins que es tanca (✓)
   if (TIMERS.some(t => t.end <= now) && now - lastRing > 1900) { lastRing = now; beep(); }
   // si l'app no és a la vista (mòbil bloquejat, una altra app), també un avís del sistema, un sol cop per temporitzador
   for (const t of TIMERS) if (t.end <= now && !t.notified && document.hidden) { t.notified = true; saveTimers(); notify(`⏰ ${t.label}`, "Temps!", "timer-" + t.id, { requireInteraction: true, vibrate: [150, 70, 150, 70, 150] }); }
-  bar.innerHTML = TIMERS.map(t => { const left = (t.end - now) / 1000, over = left <= 0;
-    return `<div class="tchip ${over ? "over" : ""}"><span class="tc-l">${esc(t.label)}</span><b>${over ? "Temps!" : fmtClock(left)}</b>
-      ${over ? "" : `<button data-tplus="${t.id}" aria-label="Un minut més">+1</button>`}<button data-tdel="${t.id}" aria-label="${over ? "Tancar" : "Aturar"} el temporitzador">${over ? "✓" : "✕"}</button></div>`; }).join("");
-  $$("[data-tplus]", bar).forEach(b => b.onclick = () => { const t = TIMERS.find(x => x.id === b.dataset.tplus); if (t) { t.end += 60000; saveTimers(); renderTimers(); } });
-  $$("[data-tdel]", bar).forEach(b => b.onclick = () => { TIMERS = TIMERS.filter(x => x.id !== b.dataset.tdel); saveTimers(); renderTimers(); });
+  const shape = TIMERS.map(t => t.id + (t.end <= now ? "!" : "")).join(",");
+  if (bar.dataset.shape !== shape) { bar.dataset.shape = shape;
+    bar.innerHTML = TIMERS.map(t => { const over = t.end <= now;
+      return `<div class="tchip ${over ? "over" : ""}" ${over ? 'role="alert"' : ""}><span class="tc-l">${esc(t.label)}</span><b data-tleft="${t.id}">${over ? "Temps!" : ""}</b>
+        ${over ? "" : `<button data-tplus="${t.id}" aria-label="Un minut més: ${esc(t.label)}">+1</button>`}<button data-tdel="${t.id}" aria-label="${over ? "Tancar" : "Aturar"} el temporitzador: ${esc(t.label)}">${over ? "✓" : "✕"}</button></div>`; }).join(""); }
+  for (const t of TIMERS) if (t.end > now) { const b = bar.querySelector(`[data-tleft="${t.id}"]`); if (b) b.textContent = fmtClock((t.end - now) / 1000); }
   document.body.style.setProperty("--tbh", bar.offsetHeight + "px"); // els avisos (toast) es posen just a sobre de la barra
+  keepAliveAudio(TIMERS.some(t => t.end > now));
   if (!timerTick) timerTick = setInterval(renderTimers, 500);
 }
 
@@ -2045,6 +2142,7 @@ const isWeb = location.protocol === "https:" || /^(localhost|127\.0\.0\.1)$/.tes
 let swReg = null;
 async function setupWeb() {
   if (!isWeb) return;
+  for (const [rel, href] of [["manifest", "manifest.webmanifest"], ["apple-touch-icon", "icon-192.png"]]) { const l = document.createElement("link"); l.rel = rel; l.href = href; document.head.appendChild(l); }
   if ("serviceWorker" in navigator) { try { swReg = await navigator.serviceWorker.register("sw.js"); } catch (e) { console.warn("sw", e); } }
   try { await navigator.storage?.persist?.(); } catch (e) { } // que el navegador no esborri les dades locals si va just d'espai
   // dreceres de la icona de l'app: ?v=shop (Compra), ?v=inv (Rebost), ?timer=1 (temporitzador nou)
@@ -2052,7 +2150,7 @@ async function setupWeb() {
   if (q.get("v") && DB && VIEWS[q.get("v")]) go(q.get("v"));
   if (q.get("timer") && DB) openTimerForm();
   if ([...q.keys()].length) history.replaceState(null, "", location.pathname);
-  await registerPeriodic();
+  if (avCfg().on) await registerPeriodic(); // només si aquest dispositiu té els avisos activats
   queueAvisos();
 }
 // Avisos de cada dispositiu: un resum del matí amb les tasques del dia i un recordatori al vespre del que encara és pendent
@@ -2070,7 +2168,8 @@ const avDb = { open() { return new Promise((res, rej) => { const r = indexedDB.o
   async get(k) { const db = await this.open(); return new Promise(res => { const t = db.transaction("k").objectStore("k").get(k); t.onsuccess = () => { res(t.result); db.close(); }; t.onerror = () => { res(null); db.close(); }; }); },
   async set(k, v) { const db = await this.open(); return new Promise(res => { const t = db.transaction("k", "readwrite").objectStore("k").put(v, k); t.onsuccess = () => { res(true); db.close(); }; t.onerror = () => { res(false); db.close(); }; }); } };
 function avisText(d, kind) {
-  const ts = tasksOn(d).filter(x => !isDone(d, "Tasca", taskKey(x)));
+  const ts = tasksOn(d).filter(x => !isDone(d, "Tasca", taskKey(x))), so = mealTasks(d).find(x => x.apat === "Sopar" && !taskDone(d, x));
+  if (so) ts.push({ text: `Sopar: ${recName(so.rid)}${so.m.acomp ? " + " + recName(so.m.acomp).toLowerCase() : ""}` });
   if (!ts.length) return null;
   const list = ts.slice(0, 5).map(x => `• ${x.text}`).join("\n") + (ts.length > 5 ? `\n… i ${ts.length - 5} més` : "");
   return kind === "mati" ? { title: `A taula! · ${ts.length} ${ts.length === 1 ? "tasca" : "tasques"} per avui`, body: list } : { title: "Abans d'anar a dormir: encara pendent", body: list };
@@ -2105,7 +2204,9 @@ async function registerPeriodic() {
 async function enableAvisos(on) {
   if (on) { if (!("Notification" in window)) { toast("Aquest navegador no permet avisos"); return false; }
     const p = await Notification.requestPermission(); if (p !== "granted") { toast("Cal donar permís d'avisos a Chrome per a aquesta web"); return false; } }
-  SET.avisos = { ...avCfg(), on }; saveSET(); await registerPeriodic(); queueAvisos(); return true;
+  SET.avisos = { ...avCfg(), on }; saveSET();
+  if (on) await registerPeriodic(); else { try { await swReg?.periodicSync?.unregister("avisos"); } catch (e) { } }
+  queueAvisos(); return true;
 }
 
 /* ================= Nutrició de la setmana per persona ================= */
@@ -2115,8 +2216,9 @@ function openNutriWeek(off = 0) {
   const t = today(), mon = addDays(t, -dayIdx(t) + 7 * off), days = [...Array(7)].map((_, i) => addDays(mon, i));
   const rows = [["Energia", 0, "Energia_Est_kcal", "kcal"], ["Proteïna", 1, "Proteina_Obj_g", "g"], ...MIN];
   const cards = activePersons().map(p => {
-    const ok = days.filter(d => !APATS.some(a => { const m = resolveMeal(d, a); return m && !m.rid && eats(d, a, p); }));
-    if (!ok.length) return `<div class="card"><b>${esc(p.Nom)}</b><p class="sub">Aquesta setmana no hi ha cap dia sense àpats lliures.</p></div>`;
+    // només els dies que la persona fa tots els àpats a casa i cap no és lliure (si no, no se sap què ha menjat)
+    const ok = days.filter(d => !APATS.some(a => { const m = resolveMeal(d, a); return m && (!eats(d, a, p) || !m.rid); }));
+    if (!ok.length) return `<div class="card"><b>${esc(p.Nom)}</b><p class="sub">Aquesta setmana no hi ha cap dia amb tots els àpats a casa.</p></div>`;
     const tot = ok.map(d => personTotals(d, p));
     const lines = rows.map(([n, i, col, u]) => { const o = num(p[col]); if (!o) return ""; const isMax = col === "Sodi_Max_mg", vals = tot.map(x => x[i]), avg = vals.reduce((s, v) => s + v, 0) / vals.length;
       const bad = vals.filter(v => isMax ? v > o : v < o * 0.85).length, pct = avg / o * 100, dec = i === 6 || i === 8 ? 1 : 0;
@@ -2126,7 +2228,7 @@ function openNutriWeek(off = 0) {
     return `<div class="card"><div class="row"><b>${esc(p.Nom)}</b><span class="spacer"></span><span class="sub">mitjana de ${ok.length} ${ok.length === 1 ? "dia" : "dies"}</span></div>${lines}</div>`;
   }).join("");
   openSheet(`Nutrició · setmana del ${fmtShort(mon)}`, `<div class="row" style="gap:8px;margin-bottom:8px"><button class="btn small" data-nwk="${off - 1}">‹ Anterior</button><span class="spacer"></span>${off ? `<button class="btn small" data-nwk="0">Aquesta setmana</button>` : ""}<button class="btn small" data-nwk="${off + 1}">Següent ›</button></div>
-    ${cards}<p class="sub">Es destaquen els nutrients que queden per sota del 85 % de l'objectiu (o per sobre del màxim, en el sodi) la meitat dels dies o més. Inclou els dies que ja han passat i els planificats. Valors aproximats (taules BEDCA/USDA); els objectius són al full Persones.</p>`);
+    ${cards}<p class="sub">Es destaquen els nutrients que queden per sota del 85 % de l'objectiu (o per sobre del màxim, en el sodi) la meitat dels dies o més. Inclou els dies que ja han passat i els planificats; no compta els dies amb algun àpat fora de casa o lliure. Valors aproximats (taules BEDCA/USDA); els objectius són al full Persones.</p>`);
   $$("#sheetBody [data-nwk]").forEach(b => b.onclick = () => openNutriWeek(num(b.dataset.nwk)));
 }
 
@@ -2176,14 +2278,14 @@ function openBatchPlan(ds) {
   const work = split ? Math.max(...Object.values(per).map(L => L.reduce((s, it) => s + it.act, 0)), items.filter(it => !assignedTo(ds, it.rid)).reduce((s, it) => s + it.act, 0)) : you;
   const est = Math.max(work, busiest ? busiest[1].min : 0);
   const itemHtml = it => { const who = assignedTo(ds, it.rid);
-    return `<li><span class="row" style="gap:8px;align-items:baseline"><button class="link bp-n" data-recipe="${esc(it.rid)}"${racAttr(it.x.q)}>${esc(recName(it.rid))}</button>${split ? `<span class="spacer"></span><button class="chip2 bp-who" data-bpwho="${esc(it.rid)}" aria-label="Canviar qui la fa">${who ? whoTag(who) : "Sense assignar"} ⇄</button>` : ""}</span>
-      <span class="sub">${it.eq.length ? esc(it.eq.join(" + ")) + " · " : ""}${fmtN(it.act)} min de feina${it.pas > 0 ? ` · ${fmtN(it.tot)} min en total (${fmtN(it.pas)} es fa sol)` : ""} · ${racR(it.x.q)}</span></li>`; };
+    return `<li><span class="bp-in"><span class="row" style="gap:8px;align-items:baseline;flex-wrap:nowrap"><button class="link bp-n" data-recipe="${esc(it.rid)}"${racAttr(it.x.q)}>${esc(recName(it.rid))}</button>${split ? `<button class="chip2 bp-who" data-bpwho="${esc(it.rid)}" aria-label="Canviar qui la fa">${who ? whoTag(who) : "Sense assignar"} ⇄</button>` : ""}</span>
+      <span class="sub">${it.eq.length ? esc(it.eq.join(" + ")) + " · " : ""}${fmtN(it.act)} min de feina${it.pas > 0 ? ` · ${fmtN(it.tot)} min en total (${fmtN(it.pas)} es fa sol)` : ""} · ${racR(it.x.q)}</span></span></li>`; };
   const lists = split ? ps.map(p => { const L = per[p.ID_Persona]; return `<h3 class="h3">${esc(p.Nom)} · ${fmtN(L.reduce((s, it) => s + it.act, 0))} min de feina</h3><div class="card">${L.length ? `<ol class="bplan">${L.map(itemHtml).join("")}</ol>
 ` : `<p class="sub">Res assignat.</p>`}</div>`; }).join("")
       + (items.some(it => !assignedTo(ds, it.rid)) ? `<h3 class="h3">Sense assignar</h3><div class="card"><ol class="bplan">${items.filter(it => !assignedTo(ds, it.rid)).map(itemHtml).join("")}</ol></div>` : "")
     : `<h3 class="h3">Ordre suggerit</h3><div class="card"><ol class="bplan">${items.map(itemHtml).join("")}</ol></div>`;
   const other = ts.filter(x => x.type !== "cook");
-  openSheet(`Sessió · ${fmtDate(d)}`, `<div class="card"><b>≈ ${fmtN(est)} min si ho encadeneu bé</b><p class="sub" style="margin:4px 0 0">${est === work ? `El que més temps ocupa és la feina ${split ? "de qui en té més" : "teva"} (${fmtN(work)} min)` : `L'aparell més ocupat marca el ritme: ${esc(busiest[0])}, ${fmtN(busiest[1].min)} min (feina: ${fmtN(work)} min)`}${busiest && est === work ? `; l'aparell més ocupat és ${esc(busiest[0])} (${fmtN(busiest[1].min)} min)` : ""}. Mentre una cosa es fa sola, avança la següent.</p>
+  openSheet(`Sessió · ${fmtDate(d)}`, `<div class="card"><b>≈ ${fmtN(est)} min si ho encadeneu bé</b><p class="sub" style="margin:4px 0 0">${est === work ? `El que més temps ocupa és la feina ${split ? "de qui en té més" : "de cuinar"} (${fmtN(work)} min)` : `L'aparell més ocupat marca el ritme: ${esc(busiest[0])}, ${fmtN(busiest[1].min)} min (feina de cuinar: ${fmtN(work)} min)`}${busiest && est === work ? `; l'aparell més ocupat és ${esc(busiest[0])} (${fmtN(busiest[1].min)} min)` : ""}. Mentre una cosa es fa sola, avança la següent.</p>
       <div class="row wrap" style="gap:6px;margin-top:8px">${Object.entries(byEq).map(([e, v]) => `<span class="tag">${esc(e)} · ${v.n} · ${fmtN(v.min)} min</span>`).join("")}</div>
       ${ps.length > 1 ? `<label class="toggle" style="margin-top:10px"><input type="checkbox" id="bpSplit" ${split ? "checked" : ""}><span>Repartir entre ${ps.map(p => esc(p.Nom)).join(" i ")}</span></label>${split ? `<button class="link" id="bpAuto" style="margin-left:8px">Tornar a repartir</button>` : ""}` : ""}</div>
     ${lists}
@@ -2207,7 +2309,7 @@ function openRecipeEditor(id, racIn) {
   const nameOf = ref => ref.startsWith("REC-") ? recName(ref) : DB.ingredients[ref]?.Nom || ref;
   const unitOf = ref => ref.startsWith("REC-") ? "racio" : DB.ingredients[ref]?.Unitat || "g";
   const f = { Nom: r.Nom, Passos: String(r.Passos || "").split(/\n+/).map(x => x.replace(/^\d+\.\s*/, "").trim()).filter(Boolean).join("\n"), Notes: r.Notes || "",
-    Temps_Actiu_min: r.Temps_Actiu_min, Temps_Total_min: r.Temps_Total_min, Preparacio: r.Preparacio || "Al moment", Tanda_Racions: r.Tanda_Racions, Tasca_Previa: r.Tasca_Previa || "",
+    Temps_Actiu_min: String(r.Temps_Actiu_min ?? ""), Temps_Total_min: String(r.Temps_Total_min ?? ""), Preparacio: r.Preparacio || "Al moment", Tanda_Racions: String(r.Tanda_Racions ?? ""), Tasca_Previa: r.Tasca_Previa || "",
     lines: (DB.ri[id] || []).map(l => ({ ref: l.ID_Ingredient, name: nameOf(l.ID_Ingredient), q: num(l.Quantitat_Per_Racio), opc: yes(l.Opcional), serv: yes(l.Afegir_En_Servir), note: l.Notes || "", sub: l.ID_Substitut || "" })) };
   const fq = q => Math.round(q * N * 100) / 100;
   const f0 = JSON.stringify(f);
@@ -2244,7 +2346,7 @@ function openRecipeEditor(id, racIn) {
     f.Nom = $("#eNom").value.trim(); f.Passos = $("#ePassos").value; f.Notes = $("#eNotes").value; f.Temps_Actiu_min = $("#eTa").value; f.Temps_Total_min = $("#eTt").value;
     f.Preparacio = $("#ePrep").value; f.Tanda_Racions = $("#eTanda").value; f.Tasca_Previa = $("#ePrev").value.trim();
     f.lines.forEach((l, i) => { const nm = $(`[data-ln="${i}"]`).value.trim(); if (nm !== l.name) { l.name = nm; const m = ingList.find(o => norm(o.label) === norm(nm)); l.ref = m ? m.ref : ""; }
-      const qv = $(`[data-lq="${i}"]`).value; l.q = qv === "" ? 0 : num(qv) / N; l.opc = $(`[data-lo="${i}"]`).checked; l.serv = $(`[data-lsv="${i}"]`).checked; l.note = $(`[data-lnote="${i}"]`).value.trim(); });
+      const qv = $(`[data-lq="${i}"]`).value; if (qv !== String(l.ref || l.q ? fq(l.q) : "")) l.q = qv === "" ? 0 : num(qv) / N; /* si no s'ha tocat, la quantitat exacta es manté */ l.opc = $(`[data-lo="${i}"]`).checked; l.serv = $(`[data-lsv="${i}"]`).checked; l.note = $(`[data-lnote="${i}"]`).value.trim(); });
   };
   function bind() {
     $$("[data-en]").forEach(b => b.onclick = () => { read(); N = Math.max(1, N + num(b.dataset.en)); draw(); });
@@ -2350,9 +2452,9 @@ function openChooser(ds, apat, q0 = "") {
     let n = 0; $$("#allOpts > div").forEach(x => { const ok = toks.every(t => x.dataset.name.includes(t)); x.hidden = !ok; if (ok) n++; });
     // primer les que coincideixen pel nom
     const box = $("#allOpts"); [...box.children].sort((a, b) => (toks.every(t => b.dataset.title.includes(t)) - toks.every(t => a.dataset.title.includes(t))) || a.dataset.title.localeCompare(b.dataset.title, "ca")).forEach(x => box.appendChild(x));
-    $("#chCount").textContent = v ? `${n} receptes amb «${q.value}»` : `Totes les receptes (${n})`;
+    $("#chCount").textContent = v ? `${pl(n, "recepta", "receptes")} amb «${q.value}»` : `Totes les receptes (${n})`;
   };
-  q.oninput = () => { lastQ = q.value; filter(); }; $("#moreOpts").onclick = () => { q.dataset.all = "1"; filter(); q.focus(); };
+  q.oninput = () => { lastQ = q.value; if (!q.value.trim()) q.dataset.all = ""; filter(); }; $("#moreOpts").onclick = () => { q.dataset.all = "1"; filter(); q.focus(); };
   if (q0) filter(); if (matchMedia("(pointer:fine)").matches) setTimeout(() => q.focus({ preventScroll: true }), 50);
 }
 
@@ -2379,7 +2481,7 @@ function openSkip(d, apat) {
     const rows = APATS.map(a => `<div class="sk-row ${a === apat ? "cur" : ""}"><span class="apat">${a}</span>${ps.map(p => { const off = !eats(d, a, p); return `<button class="chip ${off ? "on" : ""}" data-sk="${a}|${p.ID_Persona}">${off ? "✕ " : ""}${esc(p.Nom)}</button>`; }).join("")}</div>`).join("");
     const abs = absences().filter(x => x.to >= iso(addDays(today(), -60))).sort((x, y) => x.from.localeCompare(y.from));
     openSheet(`Saltar àpats · ${fmtShort(d)}`, `<p class="sub" style="margin-top:0">Marca qui no menja a casa. Les racions, les tasques i la compra es recalculen.</p>
-      <div class="row wrap" style="gap:8px;margin-bottom:10px"><button class="btn small" data-skall="${esc(iso(d))}|${esc(apat)}|all">Tots dos se salten ${esc(apat.toLowerCase())}</button><button class="btn small" data-skall="${esc(iso(d))}|day|all">Tots dos se salten tot el dia</button>
+      <div class="row wrap" style="gap:8px;margin-bottom:10px"><button class="btn small" data-skall="${esc(iso(d))}|${esc(apat)}|all">Tots dos se salten el ${esc(apat.toLowerCase())}</button><button class="btn small" data-skall="${esc(iso(d))}|day|all">Tots dos se salten tot el dia</button>
         ${ps.map(p => `<button class="btn small" data-skall="${esc(iso(d))}|day|${p.ID_Persona}">${esc(p.Nom)}: tot el dia</button>`).join("")}<button class="btn small" data-skall="${esc(iso(d))}|day|none">Ningú se salta res</button></div>
       <div class="card">${rows}</div>
       <h2>Absència de diversos dies</h2><div class="card"><div class="grid2"><div><label class="f">Qui</label><select id="abP">${ps.map(p => `<option value="${esc(p.ID_Persona)}">${esc(p.Nom)}</option>`).join("")}</select></div><div></div>
@@ -2395,7 +2497,7 @@ function openSkip(d, apat) {
   };
   draw();
 }
-const taskDone = (d, t) => t.type === "meal" ? isDone(d, "Apat", t.apat) || !!whoSkips(d, t.apat).all : isDone(d, "Tasca", taskKey(t));
+const taskDone = (d, t) => t.type === "meal" ? isDone(d, "Apat", t.apat) || !!whoSkips(d, t.apat).all || !t.rid : isDone(d, "Tasca", taskKey(t));
 const doneLast = (ts, d) => [...ts].sort((a, b) => taskDone(d, a) - taskDone(d, b));
 // Els quatre àpats del dia són tasques, al costat de les preparacions: el sopar va al bloc del vespre
 function mealTasks(d) {
@@ -2417,8 +2519,16 @@ function mealRow(m) {
 }
 // al vespre només hi va el sopar: les preparacions per a demà (marinar, esmorzar...) es fan durant el dia
 const eveningTask = t => t.type === "meal" && t.apat === "Sopar";
+// Tasques d'un dia, i (si ja ha passat o és avui) també les que consten fetes o descartades al Registre però que el pla ja no calcula
+function dayTasksAll(d) {
+  const ts = tasksOn(d); if (d > today()) return ts;
+  const have = new Set(ts.map(taskKey));
+  for (const r of Object.values(ST.reg)) if (r.Tipus === "Tasca" && r.Data === iso(d) && !String(r.Clau).startsWith("meal|") && !have.has(r.Clau)) {
+    const [type, ...rest] = String(r.Clau).split("|"); ts.push({ date: d, type, rid: rest.join("|"), rids: rest.join("|").split("+"), q: 0, meals: [], text: r.Descripcio || r.Clau, logged: true }); }
+  return ts;
+}
 function dayTasksHtml(d, emptyMsg) {
-  const meals = mealTasks(d), all = [...meals.filter(t => t.apat !== "Sopar"), ...tasksOn(d), ...meals.filter(t => t.apat === "Sopar")];
+  const meals = mealTasks(d), all = [...meals.filter(t => t.apat !== "Sopar"), ...dayTasksAll(d), ...meals.filter(t => t.apat === "Sopar")];
   if (!all.length) return `<div class="card empty-ok">${emptyMsg}</div>`;
   // les fetes (i els àpats que no menja ningú) queden plegades al final de cada bloc; l'estat es recorda mentre s'usa l'app
   const card = (ts, key, cls) => { const todo = ts.filter(t => !taskDone(d, t)), done = ts.filter(t => taskDone(d, t)), fk = `${iso(d)}|${key}`;
@@ -2502,7 +2612,7 @@ function openInvForm(item, loc) {
 }
 
 /* ================= Vistes ================= */
-const TITLES = { history: "Historial", today: "A taula!", month: "Planificació", shop: "Compra", batch: "Batch", recipes: "Receptes", inv: "Rebost", settings: "Configuració" };
+const TITLES = { history: "Historial", today: "A taula!", month: "Planificar", shop: "Compra", batch: "Batch", recipes: "Receptes", inv: "Rebost", settings: "Configuració" };
 function render() {
   if (SET.theme === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = SET.theme;
   document.documentElement.dataset.size = SET.size;
@@ -2542,7 +2652,7 @@ function bindCommon(root) {
   $$("[data-pendsel]", root).forEach(c => c.onchange = () => { const S = state.pendSel ||= new Set(); c.checked ? S.add(c.dataset.pendsel) : S.delete(c.dataset.pendsel); const y = scrollY; render(); scrollTo(0, y); });
   const pa = $("#pendAll", root); if (pa) pa.onchange = () => { state.pendSel = new Set(pa.checked ? pendingTasks().map(x => iso(x.date) + "§" + taskKey(x)) : []); const y = scrollY; render(); scrollTo(0, y); };
   const doPend = fet => { const S = state.pendSel || new Set(); let n = 0; for (const x of pendingTasks()) { const k = iso(x.date) + "§" + taskKey(x); if (S.has(k)) { toggleTask(x.date, taskKey(x), x.text, true, fet); n++; } }
-    state.pendSel = new Set(); toast(`${n} ${fet === "Sí" ? "marcades com a fetes" : "descartades"}`); render(); };
+    state.pendSel = new Set(); toast(fet === "Sí" ? pl(n, "marcada com a feta", "marcades com a fetes") : pl(n, "descartada", "descartades")); render(); };
   const pdn = $("#pendDone", root); if (pdn) pdn.onclick = () => doPend("Sí");
   const pdc = $("#pendDisc", root); if (pdc) pdc.onclick = () => doPend("Descartat");
   $$("[data-pendall]", root).forEach(b => b.onclick = e => { e.preventDefault(); for (const x of pendingTasks()) toggleTask(x.date, taskKey(x), x.text, true, "Descartat"); toast("Tasques pendents descartades"); render(); });
@@ -2558,13 +2668,16 @@ function rerenderKeep() {
 }
 // Les tasques d'un dia que ve, amb tot el detall
 function openUpDay(ds) { const d = fromIso(ds); openSheet(fmtDate(d), `<div class="card">${doneLast(tasksOn(d), d).map(x => taskHtml(x, d)).join("") || `<p class="sub">Cap tasca.</p>`}</div>`); }
-function go(v) { if (closeSheet() === false) return; state.view = v; render(); window.scrollTo(0, 0); }
+function go(v) { if (closeSheet() === false) return; state.view = v; render(); window.scrollTo(0, 0);
+  // al mòbil, la llista del mes comença el dia 1: s'hi va directament a avui
+  if (v === "month" && SET.planMode === "month") { const r = $(".cl-day.today"); if (r && r.offsetParent && innerWidth < 620) r.scrollIntoView({ block: "center" }); } }
 function consumeForMeal(m) {
   // Treu de l'inventari les racions que aquest àpat fa servir (tot el que s'havia preparat abans). Retorna què s'ha tret.
   const { alloc } = computePlan(addDays(m.d, -1), m.d), log = [];
   const shared = new Set(); // un pot de dinar (guisat + cereal) es descompta una sola vegada
-  for (const k of Object.keys(alloc)) if (k.startsWith(`${iso(m.d)}|${m.apat}|`) && alloc[k].loc !== "now" && alloc[k].cook !== iso(m.d) && !alloc[k].inCombo) {
-    const rid = k.split("|")[2]; let need = num(alloc[k].q) || eaters(m.d, m.apat).length;
+  for (const k of Object.keys(alloc)) if (k.startsWith(`${iso(m.d)}|${m.apat}|`) && !alloc[k].inCombo && (num(alloc[k].part) > 0 || (alloc[k].loc !== "now" && alloc[k].cook !== iso(m.d)))) {
+    // si es cuina avui (o al moment), només la part que surt del Rebost
+    const rid = k.split("|")[2], fresh = alloc[k].loc === "now" || alloc[k].cook === iso(m.d); let need = fresh ? num(alloc[k].part) : (num(alloc[k].q) + num(alloc[k].part)) || eaters(m.d, m.apat).length;
     for (const id of shared) if (String(ST.inv[id]?.ID_Ref).split("+").includes(rid)) need = 0; // ja ve dins d'un pot descomptat per a aquest àpat
     if (need <= 0.01) continue;
     const mealRefs = new Set([m.rid, m.acomp].filter(Boolean)), okI = i => { const rs = String(i.ID_Ref).split("+"); return rs.length < 2 ? rs[0] === rid : rs.includes(rid) && (rs.every(x => mealRefs.has(x)) || (alloc[k].items || []).includes(i.ID_Item) || (rid === m.rid && alloc[`${iso(m.d)}|${m.apat}|${m.acomp}`]?.inCombo)); };
@@ -2599,24 +2712,32 @@ function syncMealTasks() {
     if (yes(r.Fet) && !isDone(d, "Apat", a) && resolveMeal(d, a)?.rid) toggleMeal(d, a, true);
     setDone(d, "Tasca", r.Clau, "", false);
   }
+  // coccions marcades abans que la tasca recordés que es va desar al Rebost: si la fila hi és, s'apunta «desat»
+  for (const r of Object.values(ST.reg)) if (r.Tipus === "Tasca" && String(r.Clau).startsWith("cook|") && yes(r.Fet) && !r.Detall && r.Data && isRegistered(fromIso(r.Data), String(r.Clau).slice(5)))
+    setDone(fromIso(r.Data), "Tasca", r.Clau, r.Descripcio, true, "desat", r.Fet);
   HIST.quiet = false;
 }
 function toggleTask(d, key, text, on, fet = "Sí") {
   const [type, rid] = key.split("|");
   if (type === "meal") { if (isDone(d, "Apat", rid) !== on) toggleMeal(d, rid, on); if (ST.reg[`${iso(d)}|Tasca|${key}`]) setDone(d, "Tasca", key, "", false); return; }
-  if (type === "cook" && !rid.includes("+")) { if (on && fet === "Sí") addCook(d, rid); else removeCook(d, rid); }
-  setDone(d, "Tasca", key, text, on, "", fet);
+  let saved = false;
+  if (type === "cook" && !rid.includes("+")) { if (on && fet === "Sí") saved = addCook(d, rid); else removeCook(d, rid); }
+  setDone(d, "Tasca", key, text, on, saved ? "desat" : "", fet);
 }
-function removeCook(d, rid) { let n = 0; for (const id of [...regIds(d, rid), ...Object.keys(ST.inv).filter(k => k.startsWith(`INV-B-${iso(d)}-${rid}+`))]) if (ST.inv[id]) { setRow("inv", id, null); n++; } if (n) toast(`Tret del Rebost: ${recName(rid)}`); }
+// Treu del Rebost el que havia desat una cocció; el que ja s'ha començat a menjar (consta al consum d'algun àpat) es queda
+function removeCook(d, rid) { let n = 0, kept = 0; const eaten = new Set(Object.values(ST.reg).filter(r => r.Tipus === "Apat").flatMap(r => { try { return JSON.parse(r.Detall || "[]").map(x => x.id); } catch (e) { return []; } }));
+  for (const id of [...regIds(d, rid), ...Object.keys(ST.inv).filter(k => k.startsWith(`INV-B-${iso(d)}-${rid}+`))]) if (ST.inv[id]) { if (eaten.has(id)) { kept++; continue; } setRow("inv", id, null); n++; }
+  if (n) toast(`Tret del Rebost: ${recName(rid)}${kept ? " (el que ja s'ha començat a menjar s'hi queda)" : ""}`); }
 function addCook(d, rid) {
-  if (isRegistered(d, rid)) return;
-  const t = computePlan(addDays(d, -1), addDays(d, 1)).tasks.find(x => x.type === "cook" && x.rid === rid && iso(x.date) === iso(d)); if (!t) return;
+  if (isRegistered(d, rid)) return false;
+  const t = computePlan(addDays(d, -1), addDays(d, 1)).tasks.find(x => x.type === "cook" && x.rid === rid && iso(x.date) === iso(d)); if (!t) return false;
+  const t0 = today(), toEat = x => x.m >= t0 && !isDone(x.m, "Apat", x.apat); // el que ja s'ha menjat no es desa
   const ids = regIds(d, rid);
   const store = (id, loc, q, meals) => { if (q <= 0.01) return; const lim = limitFor(rid, loc, d);
     setRow("inv", id, { ID_Item: id, Tipus: "Recepta", Nom: recName(rid), Descripcio: "", ID_Ref: rid, Ubicacio: loc, Racions: Math.round(q * 10) / 10, Pots: "", Data_Preparacio: iso(d), Data_Limit: lim ? iso(lim) : "", Origen: "Batch", Consumit: "No", Fora_Receptari: "No", Notes: mealsLabel(meals) }); };
-  if (t.pot) { store(ids[1], "Congelador", t.cong, t.meals.filter(x => iso(x.d) !== iso(d))); toast(`Desat al Rebost: ${recName(rid)}`); return; }
+  if (t.pot) { store(ids[1], "Congelador", t.cong, t.meals.filter(x => iso(x.d) !== iso(d))); toast(`Desat al Rebost: ${recName(rid)}`); return true; }
   // pots de dinar: el guisat desa els pots combinats (amb el cereal); el cereal només desa el que va sol
-  const cbs = (computePlan(addDays(d, -1), addDays(d, 1)).combos || []).filter(cb => !cb.sep && cb.cook === iso(d) && (cb.rid === rid || cb.acomp === rid));
+  const cbs = (computePlan(addDays(d, -1), addDays(d, 1)).combos || []).filter(cb => !cb.sep && cb.cook === iso(d) && (cb.rid === rid || cb.acomp === rid) && toEat({ m: cb.d, apat: cb.apat }));
   const inCb = x => cbs.some(cb => iso(cb.d) === iso(x.m) && cb.apat === x.apat);
   for (const loc of ["Nevera", "Congelador"]) for (const ac of new Set(cbs.filter(cb => cb.rid === rid && cb.loc === loc).map(cb => cb.acomp))) {
     const L = cbs.filter(cb => cb.rid === rid && cb.loc === loc && cb.acomp === ac), lim = limitFor(rid, loc, d), id = `INV-B-${iso(d)}-${rid}+${ac}-${loc[0]}`;
@@ -2624,10 +2745,11 @@ function addCook(d, rid) {
       Racions: Math.round(L.reduce((s, cb) => s + cb.q, 0) * 10) / 10, Pots: L.reduce((s, cb) => s + cb.n, 0), Data_Preparacio: iso(d), Data_Limit: lim ? iso(lim) : "", Origen: "Batch", Consumit: "No", Fora_Receptari: "No", Notes: mealsLabel(L) });
   }
   for (const ac of new Set(cbs.filter(cb => cb.rid === rid).map(cb => cb.acomp))) if (isDone(d, "Tasca", `cook|${ac}`) && isRegistered(d, ac)) { removeCook(d, ac); addCook(d, ac); }
-  const later = t.meals.filter(x => (iso(x.d) !== iso(d) || t.mode === "Vespre abans") && !inCb(x));
+  const later = t.meals.filter(x => (iso(x.d) !== iso(d) || t.mode === "Vespre abans") && !inCb(x) && toEat(x));
   store(ids[0], "Nevera", later.filter(x => x.loc === "Nevera").reduce((s, x) => s + x.q, 0), later.filter(x => x.loc === "Nevera"));
   store(ids[1], "Congelador", later.filter(x => x.loc === "Congelador").reduce((s, x) => s + x.q, 0), later.filter(x => x.loc === "Congelador"));
   if (later.length || cbs.length) toast(`Desat al Rebost: ${recName(rid)}`);
+  return !!(later.length || cbs.length);
 }
 // Tasques de cuinar d'altres dies que no s'han marcat ni descartat
 function pendingTasks() {
@@ -2671,7 +2793,7 @@ const VIEWS = {
   },
   shop() {
     const L = shoppingList();
-    const P = [["week", "Setmana"], ["next", "La vinent"], ["14", "14 dies"], ["month", "Mes"], ["custom", "Dates"]];
+    const P = [["week", "Setmana"], ["next", "La vinent"], ["14", "14 dies"], ["month", "30 dies"], ["custom", "Dates"]];
     let h = `<div class="seg">${P.map(([k, l]) => `<button data-period="${k}" aria-pressed="${SET.shopPeriod === k}">${l}</button>`).join("")}</div>`;
     if (SET.shopPeriod === "custom") h += `<div class="grid2" style="margin-top:10px"><div><label class="f">Des de</label><input type="date" id="pFrom" value="${iso(L.from)}"></div><div><label class="f">Fins a</label><input type="date" id="pTo" value="${iso(L.to)}"></div></div>`;
     h += `<p class="sub">${fmtDate(L.from)} → ${fmtDate(L.to)}. Inclou el que es cuina en aquest període (també el que es menjarà després).</p>
@@ -2714,7 +2836,7 @@ const VIEWS = {
     const cats = {}; list.forEach(r => (cats[r.Categoria || "Altres"] ||= []).push(r));
     let h = `<div class="searchbar"><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input type="search" id="recQ" placeholder="Cerca per nom o ingredient…" value="${esc(state.recQuery)}"></div>
       <div class="chips">${FL.map(([k, l]) => `<button class="fchip" data-f="${k}" aria-pressed="${F.has(k)}">${l}</button>`).join("")}</div></div>
-      <p class="sub">${list.length} receptes${F.size ? ` · <button class="link" id="clearF">Treure filtres</button>` : ""}</p>`;
+      <p class="sub">${pl(list.length, "recepta", "receptes")}${F.size ? ` · <button class="link" id="clearF">Treure filtres</button>` : ""}</p>${list.length ? "" : `<div class="card empty">Cap recepta amb ${q ? `«${esc(state.recQuery)}»` : "aquests filtres"}${F.size ? " i aquests filtres" : ""}. Prova amb una altra paraula${F.size ? " o treu els filtres" : ""}.</div>`}`;
     for (const c of Object.keys(cats).sort((a, b) => a.localeCompare(b, "ca"))) {
       h += `<h2>${esc(c)} <span class="count">${cats[c].length}</span></h2><div class="rgrid">` + cats[c].sort((a, b) => a.Nom.localeCompare(b.Nom, "ca")).map(r => {
         const mm = recipeMacros(r.ID_Recepta);
@@ -2757,7 +2879,7 @@ const VIEWS = {
       if (usual.length) h += `<details class="card" ${selMode ? "open" : ""}><summary>Productes habituals del receptari que no tens registrats (${usual.length})</summary><p class="sub">${selMode ? "Selecciona'ls i toca «En tinc» per afegir-los tots." : "Toca «+» per afegir-lo al rebost, o «Seleccionar» per afegir-ne molts alhora."}</p>
         ${usual.map(g => { const k = "ing:" + g.ID_Ingredient; return `<div class="rb-row ${selMode ? "selmode" : ""} ${sel.has(k) ? "picked" : ""}" ${selMode ? `data-pick-k="${esc(k)}"` : ""}>${cb(k)}<span class="rb-n">${esc(g.Nom)}</span>${selMode ? "" : `<button class="mini" data-invquick="${esc(g.ID_Ingredient)}">+ Tinc</button>`}</div>`; }).join("")}</details>`;
     }
-    if (selMode) h += `<div class="selbar"><span><b>${sel.size}</b> seleccionats</span><span class="spacer"></span><button class="btn small" id="selDone" ${sel.size ? "" : "disabled"}>Esgotats</button><button class="btn small primary" id="selHave" ${sel.size ? "" : "disabled"}>En tinc</button></div>`;
+    if (selMode) h += `<div class="selbar"><span><b>${sel.size}</b> ${sel.size === 1 ? "seleccionat" : "seleccionats"}</span><span class="spacer"></span><button class="btn small" id="selDone" ${sel.size ? "" : "disabled"}>Esgotats</button><button class="btn small primary" id="selHave" ${sel.size ? "" : "disabled"}>En tinc</button></div>`;
     return h + `<p class="sub">Toca qualsevol element per editar-lo (nom, quantitats, data límit) o moure'l. Quan les racions o els pots arriben a 0, passa a «Esgotats». Tot es desa al full Inventari de l'Excel.</p>`;
   },
   history() {
@@ -2801,9 +2923,9 @@ const VIEWS = {
       <h2>Aquest dispositiu</h2><div class="card"><label class="f" for="keepIn">Enllaç a la llista de la compra de Keep</label><input id="keepIn" type="url" placeholder="https://keep.google.com/…" value="${esc(SET.keepUrl || DB.config.keep_url || "")}">
         <p class="sub">L'app guarda les dades d'ús en aquest navegador (a més de l'Excel). «Oblidar» les esborra d'aquí i desconnecta l'Excel; l'Excel no es toca.</p><button class="btn danger" id="forgetB">Oblidar aquest dispositiu</button></div>
       <h2>Cicle i persones</h2><div class="card"><dl class="kv"><dt>Inici</dt><dd>${fmtDate(start)}</dd><dt>Avui</dt><dd>dia ${cycleDay(today())}, setmana ${cycleWeek(today())}</dd><dt>Per defecte</dt><dd>opcions ${season(today()) === "Estiu" ? "d'estiu" : "d'hivern"} (automàtic segons la data)</dd></dl>
-      <label class="f">Mengen a casa</label>${DB.persones.map(p => `<label class="check"><input type="checkbox" data-person="${esc(p.ID_Persona)}" ${yes(p.Actiu) && !SET.personsOff[p.ID_Persona] ? "checked" : ""} ${yes(p.Actiu) ? "" : "disabled"}><span class="ct"><span class="tt">${esc(p.Nom)}</span><small>Factor de ració ${esc(p.Factor_Racio)} · ${esc(p.Energia_Est_kcal)} kcal · ${esc(p.Proteina_Obj_g)} g proteïna</small></span></label>`).join("")}</div>
+      <label class="f">Mengen a casa</label>${DB.persones.map(p => `<label class="check"><input type="checkbox" data-person="${esc(p.ID_Persona)}" ${yes(p.Actiu) && !SET.personsOff[p.ID_Persona] ? "checked" : ""} ${yes(p.Actiu) ? "" : "disabled"}><span class="ct"><span class="tt">${esc(p.Nom)}</span><small>Factor de ració ${esc(p.Factor_Racio)} · ${fmtN(num(p.Energia_Est_kcal))} kcal · ${fmtN(num(p.Proteina_Obj_g))} g proteïna</small></span></label>`).join("")}</div>
       <h2>Començar de debò</h2><div class="card"><p style="margin-top:0">${prodStart() ? `Mode producció actiu des del <b>${fmtDate(prodStart())}</b>.` : "Ara l'app suposa que les preparacions de dies anteriors ja estan fetes."}</p>
-        <p class="sub">«Començo avui» fa que l'app suposi que no tens res cuinat, tret del que hi ha al Rebost. Tot el que calgui es programarà a partir d'avui (el que faci falta abans del dissabte, el dia abans de l'àpat; la resta, al batch de dissabte). L'historial començarà avui.</p>
+        <p class="sub">Aquest botó fa que l'app suposi que no tens res cuinat, tret del que hi ha al Rebost. Tot el que calgui es programarà a partir d'avui (el que faci falta abans del dissabte, el dia abans de l'àpat; la resta, al batch de dissabte). L'historial començarà avui.</p>
         <button class="btn danger wide" id="prodB">${prodStart() ? "Tornar a començar avui" : "Començo avui"}</button>
         ${prodStart() ? `<button class="btn wide" id="prodOff" style="margin-top:8px">Desactivar el mode producció</button>` : ""}</div>
       <h2>Aparença</h2><div class="card"><label class="f">Tema</label><div class="seg">${[["auto", "Automàtic"], ["light", "Clar"], ["dark", "Fosc"]].map(([k, l]) => `<button data-theme-set="${k}" aria-pressed="${SET.theme === k}">${l}</button>`).join("")}</div>
@@ -2847,7 +2969,7 @@ function plannerView() {
   const days = plannerDays();
   let h = `<div class="row" style="margin:10px 0"><span class="sub">${fmtShort(days[0])} – ${fmtShort(days[days.length - 1])} · ${seasonLabel()}</span><span class="spacer"></span>
     <button class="mini ${SET.planMain ? "on" : ""}" id="mainT" aria-pressed="${!!SET.planMain}">${SET.planMain ? "Mostra esmorzar i berenar" : "Només dinar i sopar"}</button>
-    <button class="mini" id="gridT">${SET.planGrid ? "Veure per dies" : "Veure tota la setmana"}</button></div>`;
+    <button class="mini" id="gridT">${SET.planGrid ? "Veure per dies" : SET.planMode === "14" ? "Veure tots els àpats" : "Veure tota la setmana"}</button></div>`;
   const AP = SET.planMain ? ["Dinar", "Sopar"] : APATS;
   if (SET.planGrid) {
     h += `<div class="pgrid-wrap"><table class="pgrid"><thead><tr><th></th>${days.map(d => `<th class="${iso(d) === iso(today()) ? "today" : ""}">${fmtShort(d)}</th>`).join("")}</tr></thead><tbody>`;
@@ -2964,11 +3086,11 @@ const BIND = {
     const st = $("#selT", root); if (st) st.onclick = () => { state.invSelMode = !state.invSelMode; state.invSel = new Set(); render(); };
     $$("[data-pick-k]", root).forEach(r => r.onclick = e => { e.preventDefault(); const k = r.dataset.pickK; const S = state.invSel; S.has(k) ? S.delete(k) : S.add(k); keep(() => { }); });
     const finish = (n, msg) => { state.invSel = new Set(); state.invSelMode = false; render(); toast(msg.replace("%", n)); };
-    const sd = $("#selDone", root); if (sd) sd.onclick = () => { let n = 0; for (const k of state.invSel) { if (!k.startsWith("inv:")) continue; const id = k.slice(4), r = ST.inv[id]; if (r && !yes(r.Consumit)) { setRow("inv", id, { ...r, Consumit: "Sí" }); n++; } } finish(n, "% marcats com a esgotats"); };
+    const sd = $("#selDone", root); if (sd) sd.onclick = () => { let n = 0; for (const k of state.invSel) { if (!k.startsWith("inv:")) continue; const id = k.slice(4), r = ST.inv[id]; if (r && !yes(r.Consumit)) { setRow("inv", id, { ...r, Consumit: "Sí" }); n++; } } finish(n, n === 1 ? "% marcat com a esgotat" : "% marcats com a esgotats"); };
     const sh = $("#selHave", root); if (sh) sh.onclick = () => { let n = 0; const tab = state.invTab || "Nevera";
       for (const k of state.invSel) { if (k.startsWith("ing:")) { addIng(DB.ingredients[k.slice(4)], tab); n++; continue; } const id = k.slice(4), r = ST.inv[id]; if (!r) continue;
         if (yes(r.Consumit)) redo(id); else setRow("inv", id, { ...r, Racions: "", Pots: "" }); n++; }
-      finish(n, "% marcats com «en tinc»"); };
+      finish(n, n === 1 ? "% marcat com «en tinc»" : "% marcats com «en tinc»"); };
   },
   history(root) {
     $$("[data-hday]", root).forEach(b => b.onclick = () => openDaySheet(fromIso(b.dataset.hday)));
@@ -2980,7 +3102,7 @@ const BIND = {
     on("#connectB", connectExcel); on("#reconB", reconnect); on("#saveB", () => syncNow()); on("#expB", exportData); on("#forgetB", forgetDevice);
     const ao = $("#avOn", root); if (ao) ao.onchange = async () => { const ok = await enableAvisos(ao.checked); if (!ok) ao.checked = false; else toast(ao.checked ? "Avisos activats" : "Avisos desactivats"); };
     $$("[data-av]", root).forEach(e => e.onchange = async () => { const [g, k] = e.dataset.av.split("|"), c = avCfg(); if (!e.value) return; c[g][k] = e.value; SET.avisos = c; saveSET();
-      const v = (await avDb.get("vist").catch(() => null)) || {}; delete v[`${iso(today())}|${k}`]; await avDb.set("vist", v); queueAvisos(); toast("Hora desada"); });
+      if ((dayIdx(today()) >= 5 ? "cap" : "lab") === g) { const v = (await avDb.get("vist").catch(() => null)) || {}; delete v[`${iso(today())}|${k}`]; await avDb.set("vist", v); } queueAvisos(); toast("Hora desada"); });
     on("#avTest", async () => { if (window.Notification?.permission !== "granted" && !(await enableAvisos(true))) return; const txt = avisText(today(), "mati") || { title: "A taula!", body: "Avui no hi ha tasques pendents." }; if (!(await notify(txt.title, txt.body, "prova"))) toast("No s'ha pogut mostrar l'avís"); });
     on("#reloadB", async () => { try { await loadFromHandle(); if (Object.keys(ST.pending).length) scheduleSync(300); toast("Excel tornat a llegir"); } catch (e) { alertBox("No s'ha pogut llegir l'Excel", e.message); } });
     const ki = $("#keepIn", root); if (ki) ki.onchange = () => { SET.keepUrl = ki.value.trim(); saveSET(); toast(/^https:\/\/keep\.google\.com\//.test(SET.keepUrl) || !SET.keepUrl ? "Enllaç desat" : "L'enllaç ha de començar per https://keep.google.com/"); };
@@ -3020,7 +3142,7 @@ function openIngSearch(q0 = "") {
     <input type="search" id="isQ" placeholder="Per exemple: porro, tofu, carbassa…" autocomplete="off" value="${esc(q0)}"><div id="isR" style="margin-top:10px"></div>`);
   const q = $("#isQ"), box = $("#isR");
   const draw = () => { const res = q.value.trim() ? suggest(q.value, pool, 12) : pool.filter(o => o.used).sort((a, b) => a.label.localeCompare(b.label, "ca")).slice(0, 0);
-    box.innerHTML = res.length ? `<div class="card">${res.map(o => `<button class="is-row" data-ising="${esc(o.ref)}" ${o.used ? "" : "disabled"}><span>${esc(o.label)}</span><small>${o.used ? `${fmtQty(R.need[o.ref].q, DB.ingredients[o.ref].Unitat)} · ${new Set(R.need[o.ref].uses.map(u => u.top)).size} plats ›` : "no es fa servir aquests dies"}</small></button>`).join("")}</div>` : q.value.trim() ? `<p class="sub">Cap ingredient amb aquest nom.</p>` : "";
+    box.innerHTML = res.length ? `<div class="card">${res.map(o => `<button class="is-row" data-ising="${esc(o.ref)}" ${o.used ? "" : "disabled"}><span>${esc(o.label)}</span><small>${o.used ? `${fmtQty(R.need[o.ref].q, DB.ingredients[o.ref].Unitat)} · ${pl(new Set(R.need[o.ref].uses.map(u => u.top)).size, "plat", "plats")} ›` : "no es fa servir aquests dies"}</small></button>`).join("")}</div>` : q.value.trim() ? `<p class="sub">Cap ingredient amb aquest nom.</p>` : "";
     $$("[data-ising]", box).forEach(b => b.onclick = () => { const id = b.dataset.ising, n = R.need[id]; openUses({ id, ing: DB.ingredients[id], q: n.q, uses: n.uses }, R, "search"); }); };
   q.oninput = draw; draw(); setTimeout(() => q.focus(), 50);
 }
@@ -3063,7 +3185,7 @@ function exportHistory(days) {
         ...ps.map(p => eats(d, a, p) ? num(p.Factor_Racio) || 1 : 0), Math.round(mm[0]), Math.round(mm[1] * 10) / 10, Math.round(mm[5]), Math.round(mm[6] * 10) / 10, Math.round(mm[10])]); }
     D.push([iso(d), DOW_LONG[dayIdx(d)], ...ps.flatMap(p => { const pt = personTotals(d, p); return [Math.round(pt[0]), Math.round(pt[1]), Math.round(pt[5])]; }), proteinCheck(d).ok ? "Sí" : "No", Math.round(dayWork(d).total)]);
   }
-  for (const x of computePlan(from, to).tasks) { const r = ST.reg[`${iso(x.date)}|Tasca|${taskKey(x)}`]; T.push([iso(x.date), x.text, { cook: "Cuinar", thaw: "Descongelar", previa: "Preparació prèvia" }[x.type], Math.round((x.q || 0) * 10) / 10, r ? (yes(r.Fet) ? "Feta" : "Descartada") : "Sense marcar"]); }
+  for (let dd = from; dd <= to; dd = addDays(dd, 1)) for (const x of dayTasksAll(dd)) { const r = ST.reg[`${iso(x.date)}|Tasca|${taskKey(x)}`]; T.push([iso(x.date), x.text, { cook: "Cuinar", thaw: "Descongelar", previa: "Preparació prèvia" }[x.type], Math.round((x.q || 0) * 10) / 10, r ? (yes(r.Fet) ? "Feta" : "Descartada") : "Sense marcar"]); }
   const wb = XLSX.utils.book_new();
   const add = (rows, name, w) => { const ws = XLSX.utils.aoa_to_sheet(rows); ws["!cols"] = w.map(x => ({ wch: x })); XLSX.utils.book_append_sheet(wb, ws, name); };
   add(A, "Apats", [11, 10, 9, 40, 28, 13, 16, ...ps.map(() => 11), 12, 10, 9, 9, 9]); add(D, "Dies", [11, 10, ...ps.flatMap(() => [11, 12, 11]), 12, 12]); add(T, "Tasques", [11, 60, 16, 9, 13]);
@@ -3075,8 +3197,9 @@ const keepUrl = () => { const u = String(SET.keepUrl || DB?.config?.keep_url || 
 // Esborra d'aquest navegador totes les dades de l'app (no toca l'Excel)
 async function forgetDevice() {
   if (Object.keys(ST.pending).length && !confirmForget.ok) { confirmForget(); return; }
-  for (const k of [K_DB, K_STORE, K_SET, K_SYNC]) { try { localStorage.removeItem(k); } catch (e) { } }
-  try { idb._db?.close(); idb._db = null; indexedDB.deleteDatabase("menu-fsa"); } catch (e) { }
+  for (const k of [K_DB, K_STORE, K_SET, K_SYNC, K_TIMERS]) { try { localStorage.removeItem(k); } catch (e) { } }
+  try { idb._db?.close(); idb._db = null; indexedDB.deleteDatabase("menu-fsa"); indexedDB.deleteDatabase("a-taula-avisos"); } catch (e) { }
+  try { await swReg?.periodicSync?.unregister("avisos"); for (const n of (await swReg?.getNotifications()) || []) n.close(); for (const k of (await caches?.keys()) || []) await caches.delete(k); } catch (e) { }
   location.reload();
 }
 function confirmForget() {
@@ -3184,7 +3307,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener("pageshow", e => { if (e.persisted) { checkExternal(); checkDay(); } });
   window.addEventListener("focus", checkExternal);
   // una altra pestanya ha canviat les dades d'aquest navegador: es fan servir les seves (si aquí no hi ha res a mig desar)
-  window.addEventListener("storage", e => { if (e.key !== K_STORE || !e.newValue || FS.saving) return; const o = JSON.parse(e.newValue); if (!o) return; ST = o; for (const k of ["inv", "plan", "reg", "compra", "pending"]) ST[k] ||= {}; ST.rec ||= {}; if (DB) applyRecOverlay(); bump(); render(); });
+  window.addEventListener("storage", e => {
+    if (e.key === K_TIMERS) { TIMERS = lsGet(K_TIMERS) || []; renderTimers(); return; } // temporitzadors d'una altra finestra
+    if (e.key !== K_STORE || !e.newValue) return;
+    if (FS.saving) { mergeTab.later = e.newValue; return; }
+    mergeTab(e.newValue); });
   if (DB && (!DB.config?.data_inici_cicle || !DB.options)) DB = null;
   render();
   setupWeb();
